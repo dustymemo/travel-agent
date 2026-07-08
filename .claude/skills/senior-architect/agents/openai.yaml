@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior Architect"
+  short_description: "System architecture and technical decisions"
+  default_prompt: "Use $senior-architect to design or review system architecture, dependencies, scalability, and technology choices."

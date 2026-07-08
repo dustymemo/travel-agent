@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior Backend"
+  short_description: "Backend APIs, data, auth, and services"
+  default_prompt: "Use $senior-backend to design or implement backend APIs, database changes, authentication, or service architecture."

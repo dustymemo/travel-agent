@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior Frontend"
+  short_description: "React, Next.js, TypeScript frontend work"
+  default_prompt: "Use $senior-frontend to build, review, or optimize React and Next.js frontend code."

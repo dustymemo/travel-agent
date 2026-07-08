@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior Security"
+  short_description: "Threat modeling and security review"
+  default_prompt: "Use $senior-security to perform threat modeling, vulnerability assessment, secure code review, or security architecture work."

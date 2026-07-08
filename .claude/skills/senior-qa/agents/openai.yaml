@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior QA"
+  short_description: "Test automation and coverage analysis"
+  default_prompt: "Use $senior-qa to generate tests, analyze coverage, scaffold E2E tests, or improve test quality."
