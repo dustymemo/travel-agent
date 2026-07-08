@@ -1,0 +1,32 @@
+/**
+ * Global app configuration & defaults.
+ *
+ * Centralized here so units/currency/locale are never hardcoded in the UI,
+ * which keeps the `lib/` core portable for a future native/App Store shell.
+ */
+
+export const config = {
+  units: "metric" as const, // "metric" | "imperial"
+  currency: "CAD" as const, // ISO 4217
+  locale: "en-CA" as const,
+
+  ai: {
+    /** Which provider the server uses. Override with TRAVEL_AI_PROVIDER. */
+    provider: (process.env.TRAVEL_AI_PROVIDER ?? "claude-cli") as
+      | "claude-cli"
+      | "claude-api",
+    /** Model id used for planning. */
+    model: process.env.TRAVEL_AI_MODEL ?? "claude-sonnet-5",
+  },
+
+  /** Free, no-key external services. */
+  services: {
+    weatherBaseUrl: "https://archive-api.open-meteo.com/v1/archive",
+    geocodeBaseUrl: "https://nominatim.openstreetmap.org",
+    overpassBaseUrl: "https://overpass-api.de/api/interpreter",
+    /** Sent as User-Agent to OSM services (their usage policy requires it). */
+    userAgent: "TravelAgent/0.1 (personal project)",
+  },
+} as const;
+
+export type AppConfig = typeof config;

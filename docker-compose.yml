@@ -1,0 +1,15 @@
+# Phase 1 self-host: `docker compose up --build`
+# Put your secrets in a local .env file (copy from .env.example).
+services:
+  travel-agent:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      TRAVEL_AI_PROVIDER: claude-cli
+      TRAVEL_AI_MODEL: claude-sonnet-5
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+    restart: unless-stopped
