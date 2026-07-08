@@ -12,8 +12,7 @@ export class FakeProvider implements TravelAIProvider {
 
   constructor(
     private readonly canned:
-      | string
-      | ((opts: GenerateOptions) => string) = "{}",
+      string | ((opts: GenerateOptions) => string) = "{}",
   ) {}
 
   async generate(opts: GenerateOptions): Promise<string> {

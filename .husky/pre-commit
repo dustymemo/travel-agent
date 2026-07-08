@@ -1,0 +1,4 @@
+# Fast local feedback only: format + lint staged files (sub-second).
+# The full suite, typecheck, and build run in CI (.github/workflows/ci.yml),
+# which can't be bypassed with --no-verify.
+npx lint-staged
