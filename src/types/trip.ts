@@ -48,7 +48,14 @@ export const DayPlan = z.object({
 export type DayPlan = z.infer<typeof DayPlan>;
 
 export const BudgetLine = z.object({
-  category: z.enum(["flights", "hotels", "food", "transit", "activities", "other"]),
+  category: z.enum([
+    "flights",
+    "hotels",
+    "food",
+    "transit",
+    "activities",
+    "other",
+  ]),
   amountCad: z.number().nonnegative(),
   note: z.string().optional(),
 });

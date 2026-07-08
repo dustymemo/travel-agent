@@ -17,7 +17,9 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+        Promise.all(
+          keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)),
+        ),
       )
       .then(() => self.clients.claim()),
   );
@@ -31,7 +33,10 @@ self.addEventListener("fetch", (event) => {
     fetch(request)
       .then((response) => {
         const copy = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+        caches
+          .open(CACHE)
+          .then((cache) => cache.put(request, copy))
+          .catch(() => {});
         return response;
       })
       .catch(() =>

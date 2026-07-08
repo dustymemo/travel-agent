@@ -13,8 +13,7 @@ export const config = {
   ai: {
     /** Which provider the server uses. Override with TRAVEL_AI_PROVIDER. */
     provider: (process.env.TRAVEL_AI_PROVIDER ?? "claude-cli") as
-      | "claude-cli"
-      | "claude-api",
+      "claude-cli" | "claude-api",
     /** Model id used for planning. */
     model: process.env.TRAVEL_AI_MODEL ?? "claude-sonnet-5",
   },

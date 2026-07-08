@@ -22,7 +22,9 @@ describe("pwa manifest", () => {
 
   it("provides a maskable icon for Android adaptive icons", () => {
     const icons = manifest.icons ?? [];
-    expect(icons.some((i) => (i.purpose ?? "").includes("maskable"))).toBe(true);
+    expect(icons.some((i) => (i.purpose ?? "").includes("maskable"))).toBe(
+      true,
+    );
   });
 
   it("sets theme and background colors", () => {
