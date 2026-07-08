@@ -25,11 +25,16 @@ ENV PORT=3000
 ENV TRAVEL_AI_PROVIDER=claude-cli
 
 # The claude CLI must exist in the container for the claude-cli provider.
+# Installed as root (global), before we drop privileges below.
 RUN npm install -g @anthropic-ai/claude-code
 
-COPY --from=build /app/.next/standalone ./
-COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/public ./public
+# Run as the unprivileged `node` user (uid 1000) that ships with the base image,
+# not root. App files are owned by node so nothing runs or writes as root.
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/public ./public
+
+USER node
 
 EXPOSE 3000
 CMD ["node", "server.js"]
