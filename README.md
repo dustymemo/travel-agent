@@ -4,7 +4,25 @@ AI travel planner. Enter a destination, number of days, season, and budget (CAD)
 and it generates a day-by-day timeline, packing list (clothes/ID), apps to download
 (e.g. Compass Card in Vancouver, Suica in Japan), seasonal tips grounded in real
 weather, a budget breakdown, a map route, and exports (PDF + a 9:16 full-screen
-phone visual). Jira: project **TA**.
+phone visual).
+
+- **Repo:** https://github.com/dustymemo/travel-agent (private)
+- **Tracking:** Jira project **TA**
+
+## Status
+
+Work is tracked as epics **E1–E10** in Jira. Progress so far:
+
+- ✅ **E1 · Foundation** — Next.js 16 scaffold, pluggable AI provider (`claude-cli` /
+  `claude-api`), config, Zod schemas, Supabase clients, Docker, test infra, **PWA**
+  (installable + offline)
+- 🚧 **E2 · City data** (Vancouver seed) — in progress
+- ⬜ **E3** Core planner · **E4** Budget · **E5** Map · **E6** Timeline UI ·
+  **E7** Save & eval · **E8** Export · **E9** Booking links · **E10** Model-output evals
+
+Conventions for contributors/agents live in [`AGENTS.md`](./AGENTS.md) (TDD is
+mandatory; `src/lib/` stays framework-free). Reusable `senior-*` skills are vendored
+under `.claude/skills/`.
 
 ## Architecture
 
