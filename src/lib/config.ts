@@ -16,6 +16,15 @@ export const config = {
       "claude-cli" | "claude-api",
     /** Model id used for planning. */
     model: process.env.TRAVEL_AI_MODEL ?? "claude-sonnet-5",
+    /**
+     * Guards the subscription/host against overload (TA-50). Defaults are
+     * conservative for a single-user Phase-1 deployment.
+     */
+    rateLimit: {
+      maxRequests: Number(process.env.TRAVEL_AI_MAX_REQUESTS ?? 20),
+      windowMs: Number(process.env.TRAVEL_AI_RATE_WINDOW_MS ?? 60_000),
+      maxConcurrent: Number(process.env.TRAVEL_AI_MAX_CONCURRENT ?? 2),
+    },
   },
 
   /** Free, no-key external services. */
