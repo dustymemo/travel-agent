@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { supabasePublicEnv } from "@/lib/env";
+import { supabasePublicEnv, optionalSupabasePublicEnv } from "@/lib/env";
 
 const KEYS = [
   "NEXT_PUBLIC_SUPABASE_URL",
@@ -40,5 +40,22 @@ describe("supabasePublicEnv()", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://abc.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
     expect(() => supabasePublicEnv()).toThrow(/NEXT_PUBLIC_SUPABASE_ANON_KEY/);
+  });
+});
+
+describe("optionalSupabasePublicEnv()", () => {
+  it("returns the values when configured", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://abc.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key-123";
+    expect(optionalSupabasePublicEnv()).toEqual({
+      url: "https://abc.supabase.co",
+      anonKey: "anon-key-123",
+    });
+  });
+
+  it("returns null (no throw) when Supabase isn't configured", () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    expect(optionalSupabasePublicEnv()).toBeNull();
   });
 });

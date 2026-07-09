@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { supabasePublicEnv } from "@/lib/env";
+import { optionalSupabasePublicEnv } from "@/lib/env";
 
 /**
  * Supabase session refresh (Next.js 16 Proxy — formerly `middleware`).
@@ -9,13 +9,18 @@ import { supabasePublicEnv } from "@/lib/env";
  * before routes render, and the rotated tokens are written back onto the
  * response. Without this, a logged-in user's session silently expires.
  *
+ * If Supabase isn't configured (e.g. a fresh clone just trying the fake
+ * planner), we skip refresh entirely so the app still runs out of the box.
+ *
  * Keep this lean (see the "Proxy" docs): it runs on every matched request.
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const { url, anonKey } = supabasePublicEnv();
-  const supabase = createServerClient(url, anonKey, {
+  const env = optionalSupabasePublicEnv();
+  if (!env) return response; // no Supabase configured → nothing to refresh
+
+  const supabase = createServerClient(env.url, env.anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
