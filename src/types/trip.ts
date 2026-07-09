@@ -27,10 +27,25 @@ export const TripInput = z.object({
 });
 export type TripInput = z.infer<typeof TripInput>;
 
+/**
+ * Category of a timeline stop — drives the Roam colour dot / tag in the UI.
+ * (Roam design: Transport / Stay / Food / Activity / Explore.)
+ */
+export const StopType = z.enum([
+  "transport",
+  "stay",
+  "food",
+  "activity",
+  "explore",
+]);
+export type StopType = z.infer<typeof StopType>;
+
 /** One time-blocked activity on a day's timeline. */
 export const Activity = z.object({
   startTime: z.string(), // "09:30"
   title: z.string(),
+  /** Category for the UI dot/tag; defaults to "activity" when omitted. */
+  type: StopType.default("activity"),
   description: z.string().optional(),
   location: z.string().optional(),
   lat: z.number().optional(),
@@ -72,6 +87,24 @@ export const Itinerary = z.object({
   budgetTierCad: z.number().positive().optional(), // set when this is one tier of several
 });
 export type Itinerary = z.infer<typeof Itinerary>;
+
+/** One turn of the Plan conversation. */
+export const Message = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string(),
+});
+export type Message = z.infer<typeof Message>;
+
+/**
+ * What the planner brain returns each turn: a short chat reply to show in the
+ * conversation, plus the full (re)generated itinerary to render beside it.
+ * This is also the exact JSON contract the AI model must emit.
+ */
+export const PlanTurnOutput = z.object({
+  reply: z.string().min(1),
+  itinerary: Itinerary,
+});
+export type PlanTurnOutput = z.infer<typeof PlanTurnOutput>;
 
 /** A saved trip = the input plus one or more generated itineraries. */
 export const Trip = z.object({
