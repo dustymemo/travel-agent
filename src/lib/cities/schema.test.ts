@@ -36,9 +36,27 @@ const validCity = {
 describe("sourced()", () => {
   it("requires a value, a URL source, and a lastVerified date", () => {
     const schema = sourced(z.string());
-    expect(schema.safeParse({ value: "x", source: "not-a-url", lastVerified: "2026-07-08" }).success).toBe(false);
-    expect(schema.safeParse({ value: "x", source: "https://a.com", lastVerified: "nope" }).success).toBe(false);
-    expect(schema.safeParse({ value: "x", source: "https://a.com", lastVerified: "2026-07-08" }).success).toBe(true);
+    expect(
+      schema.safeParse({
+        value: "x",
+        source: "not-a-url",
+        lastVerified: "2026-07-08",
+      }).success,
+    ).toBe(false);
+    expect(
+      schema.safeParse({
+        value: "x",
+        source: "https://a.com",
+        lastVerified: "nope",
+      }).success,
+    ).toBe(false);
+    expect(
+      schema.safeParse({
+        value: "x",
+        source: "https://a.com",
+        lastVerified: "2026-07-08",
+      }).success,
+    ).toBe(true);
   });
 });
 
@@ -94,7 +112,6 @@ describe("CityData", () => {
     const bad = {
       ...structuredClone(validCity),
       safety: { value: "Very safe.", lastVerified: "2026-07-08" }, // missing source
-
     };
     expect(CityData.safeParse(bad).success).toBe(false);
   });
