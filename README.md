@@ -1,128 +1,120 @@
-# Travel Agent
+# Roam — AI Travel Planner
 
-AI travel planner. Enter a destination, number of days, season, and budget (CAD),
-and it generates a day-by-day timeline, packing list (clothes/ID), apps to download
-(e.g. Compass Card in Vancouver, Suica in Japan), seasonal tips grounded in real
-weather, a budget breakdown, a map route, and exports (PDF + a 9:16 full-screen
-phone visual).
+Tell Roam your dates and vibe in plain English (“3 relaxed days in Vancouver, love
+food”) and it builds a day-by-day itinerary you can refine by chatting — with a
+packing list, apps to download, local tips, and a budget. Grounded in verified
+local facts (transit cards, plug types, emergency numbers) so it doesn't make
+things up.
 
-- **Repo:** https://github.com/dustymemo/travel-agent (private)
+- **Repo:** https://github.com/dustymemo/travel-agent
+- **License:** [MIT](./LICENSE)
 - **Tracking:** Jira project **TA**
+
+## Try it in 60 seconds (no accounts, no keys)
+
+You need only **Node.js 20+**. This runs the app with a built-in **offline
+planner**, so you don't need a Claude login or a database to see it work:
+
+```bash
+git clone https://github.com/dustymemo/travel-agent.git
+cd travel-agent
+npm install
+echo "TRAVEL_AI_PROVIDER=fake" > .env.local   # use the offline demo planner
+npm run dev
+```
+
+Open **http://localhost:3000**, type something like **“3 relaxed days in
+Vancouver, love food”**, and hit send. Try the quick chips — *Make it cheaper*,
+*Trains instead*, *Add a food tour*.
+
+> ℹ️ In this demo mode the planner is **deterministic and canned** — it always
+> returns a Vancouver-flavoured plan. To get real, any-city plans from Claude,
+> do the [Full setup](#full-setup-real-ai--saved-trips) below.
 
 ## Status
 
 Work is tracked as epics **E1–E10** in Jira. Progress so far:
 
-- ✅ **E1 · Foundation** — Next.js 16 scaffold, pluggable AI provider (`claude-cli` /
-  `claude-api`), config, Zod schemas, Supabase clients + schema/RLS, Docker, test
-  infra, **PWA** (installable + offline)
-- ✅ **E2 · City data** (Vancouver seed) — source-cited `CityData`, loader, and the
-  `cityFactsForPrompt()` fragment that grounds the AI
-- 🚧 **E3 · Core planner** — next up
+- ✅ **E1 · Foundation** — Next.js 16 scaffold, pluggable AI provider, config, Zod
+  schemas, Supabase clients + schema/RLS, Docker, test infra, **PWA**
+- ✅ **E2 · City data** (Vancouver seed) — source-cited facts + the grounding the AI uses
+- 🚧 **E3 · Core planner** — chat → live itinerary is **working** (offline planner);
+  wiring the real `claude-cli` provider next
 - ⬜ **E4** Budget · **E5** Map · **E6** Timeline UI · **E7** Save & eval ·
   **E8** Export · **E9** Booking links · **E10** Model-output evals
 
 Conventions for contributors/agents live in [`AGENTS.md`](./AGENTS.md) (TDD is
-mandatory; `src/lib/` stays framework-free). Reusable `senior-*` skills are vendored
-under `.claude/skills/`.
+mandatory; `src/lib/` stays framework-free).
 
 ## Architecture
 
 One full-stack Next.js app, in three layers:
 
 - **`src/lib/`** — the "brain": pure TypeScript, no React (AI provider, planner,
-  budget, city data, weather, geo, supabase). Portable to a future native shell.
+  budget, city data). Portable to a future native shell.
 - **`src/components/`** — presentational UI.
-- **`src/app/`** — routes (pages) + `api/` Route Handlers (the server backend:
-  runs the AI provider, proxies weather/geo).
+- **`src/app/`** — routes (pages) + `api/` Route Handlers (the server backend that
+  runs the AI provider).
 
-The AI backend is **pluggable** (`src/lib/ai/`):
+The AI backend is **pluggable** (`src/lib/ai/`), chosen by `TRAVEL_AI_PROVIDER`:
 
-| Phase | Provider    | How it runs                                          | Cost         |
-| ----- | ----------- | ---------------------------------------------------- | ------------ |
-| 1     | `claude-cli`| local `claude` CLI / Docker, your Gmail subscription | $0           |
-| 2     | `claude-api`| Claude API on Vercel (later)                         | pennies/plan |
-
-Switch with `TRAVEL_AI_PROVIDER`. See `.env.example`.
+| Value        | How it runs                                            | Needs                    |
+| ------------ | ------------------------------------------------------ | ------------------------ |
+| `fake`       | deterministic offline planner (demo/tests)             | nothing                  |
+| `claude-cli` | local `claude` CLI, your Claude subscription (free)    | the `claude` CLI, logged in |
+| `claude-api` | Claude API (Phase 2, not implemented yet)              | an API key               |
 
 ## Stack
 
 Next.js 16 · React 19 · TypeScript · Tailwind v4 · Zustand · Zod ·
-Supabase (Postgres/Auth/Storage) · Leaflet + OpenStreetMap · Open-Meteo ·
-Vitest + Testing Library + MSW.
+Supabase (Postgres/Auth/Storage) · Vitest + Testing Library + MSW.
 
-## Getting started
+## Full setup (real AI + saved trips)
 
-### Prerequisites
+The demo above needs nothing. For real Claude-generated plans and saved trips,
+add the two pieces it skips:
 
-- **Node.js 20+** and npm
-- A free **Supabase** project — https://supabase.com (for the database + auth)
-- **Phase 1 AI:** the [`claude` CLI](https://docs.claude.com/en/docs/claude-code)
-  logged in with your Claude (Gmail) account (`claude` local dev is free)
-- **Optional:** Docker Desktop (only for the containerized deploy)
+### 1. Real AI plans (the `claude` CLI)
 
-### 1. Install
+Install the [`claude` CLI](https://docs.claude.com/en/docs/claude-code) and log in
+with your Claude account (free for local dev), then in `.env.local`:
 
 ```bash
-git clone https://github.com/dustymemo/travel-agent.git
-cd travel-agent
-npm install
+TRAVEL_AI_PROVIDER=claude-cli
 ```
 
-### 2. Configure environment
+Restart `npm run dev` and Roam plans **any** city, not just Vancouver.
+
+### 2. Saved trips (Supabase)
+
+Create a free project at https://supabase.com, then copy `.env.example` →
+`.env.local` and fill in the keys from **Dashboard → Settings → API**:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Fill in `.env.local`:
-
-| Variable                        | Where to find it                                              |
+| Variable                        | Where to find it                                             |
 | ------------------------------- | ------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase Dashboard → **Settings → API** → Project URL        |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → **Settings → API** → `anon` public key  |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase Dashboard → **Settings → API** → `service_role` key |
-| `TRAVEL_AI_PROVIDER`            | Leave `claude-cli` for local dev (uses your logged-in CLI)   |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Settings → API → Project URL                                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Settings → API → `anon` public key                           |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Settings → API → `service_role` key (server-only)            |
+
+Then apply the database schema (tables + row-level security) with the Supabase
+CLI — no global install needed:
+
+```bash
+npx supabase login                                   # opens a browser
+npx supabase link --project-ref <your-project-ref>   # ref = subdomain of your Supabase URL
+npx supabase db push                                 # applies supabase/migrations/0001_init.sql
+```
+
+- `link` / `db push` prompt for your **database password** (Settings → Database).
+- No CLI? Paste `supabase/migrations/0001_init.sql` into the Dashboard → **SQL
+  Editor** and run it once.
+- Regenerate typed DB definitions after a schema change: `npm run db:types`.
 
 `.env.local` is gitignored — never commit real keys.
-
-### 3. Set up the database
-
-The schema (tables + row-level security) lives in `supabase/migrations/`. Apply it
-to **your** Supabase project with the Supabase CLI (run via `npx` — no global install
-needed):
-
-```bash
-npx supabase login                                   # opens a browser to authenticate
-npx supabase link --project-ref <your-project-ref>   # links this repo to your project
-npx supabase db push                                 # applies migrations to the remote DB
-```
-
-- **`<your-project-ref>`** is the 20-character id in your project URL —
-  `https://<your-project-ref>.supabase.co` (same as the subdomain in
-  `NEXT_PUBLIC_SUPABASE_URL`).
-- `link` / `db push` prompt for your **database password**
-  (Supabase Dashboard → **Settings → Database**; "Reset database password" if
-  you don't have it saved).
-- `db push` applies [`0001_init.sql`](./supabase/migrations/0001_init.sql), which
-  creates the `trips` and `feedback` tables, enables RLS, and adds owner-scoped
-  policies. **Until this runs, the app has no tables and RLS protects nothing.**
-
-After any schema change, regenerate the typed database definitions:
-
-```bash
-npm run db:types    # writes src/types/supabase.ts from the linked project
-```
-
-> No CLI? You can instead paste the contents of
-> `supabase/migrations/0001_init.sql` into the Supabase Dashboard → **SQL Editor**
-> and run it once.
-
-### 4. Run the app
-
-```bash
-npm run dev         # http://localhost:3000
-```
 
 ## Test-driven development
 
@@ -137,17 +129,18 @@ npm run lint
 ```
 
 A `FakeProvider` (`src/lib/ai/fake.ts`) implements the AI interface with canned
-JSON so planner/budget logic is tested deterministically — no real Claude calls.
+JSON so planner logic is tested deterministically — no real Claude calls.
 Coverage is gated on `src/lib/` (90% lines/stmts, 80% branches).
 
-## Phase 1 deploy (self-host, free)
+## Deploying
 
-```bash
-# 1. Authenticate the CLI once with your Claude (Gmail) account, then:
-claude setup-token          # copy the token into .env as CLAUDE_CODE_OAUTH_TOKEN
-# 2. Run it:
-docker compose up --build   # http://localhost:3000 — installable as a PWA on your phone
-```
+This is a **full-stack** app (server API routes + a server-side AI provider), so
+it **can't** run on static hosts like GitHub Pages. Options:
 
-> A subscription token is for **personal use** (Anthropic ToS + subscription rate
-> limits). For a public, multi-user version, switch to `claude-api` (Phase 2).
+- **Self-host (Phase 1, free):** Docker + the `claude` CLI —
+  `claude setup-token` (copy into `.env` as `CLAUDE_CODE_OAUTH_TOKEN`), then
+  `docker compose up --build`. Installable as a PWA on your phone. A subscription
+  token is for **personal use** (Anthropic ToS + rate limits).
+- **Vercel / serverless:** works for the app + API, but **can't run the `claude`
+  CLI** — it needs the Phase-2 `claude-api` provider (not built yet). The `fake`
+  planner does run there, for a UI demo.

@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # How we work in this repo
 
-Travel Agent — an AI travel planner (Next.js 16, full-stack). Jira project **TA**.
+Roam — an AI travel planner (Next.js 16, full-stack). Jira project **TA**.
 
 ## 1. Test-Driven Development is mandatory
 
@@ -27,15 +27,15 @@ Every change follows **red → green → refactor**:
 - **`src/components/`** — presentational UI only.
 - **`src/app/`** — routes (pages) + `api/*/route.ts` Route Handlers (the server "backend": runs the AI provider, proxies weather/geo). Server-only work (the `claude` CLI, secrets) lives here, never in the browser.
 
-The AI backend is **pluggable** (`src/lib/ai/`): `claude-cli` (Phase 1, free) ↔ `claude-api` (Phase 2). Select via `TRAVEL_AI_PROVIDER`; the app depends only on the `TravelAIProvider` interface.
+The AI backend is **pluggable** (`src/lib/ai/`): `fake` (deterministic offline planner for demo/tests) · `claude-cli` (Phase 1, free) · `claude-api` (Phase 2). Select via `TRAVEL_AI_PROVIDER`; the app depends only on the `TravelAIProvider` interface.
 
 ## 3. Frontend standards (senior-frontend skill)
 
-Apply the **`senior-frontend`** skill's standards (lives at `media-agent/.claude/skills/senior-frontend/`; read its `references/` for depth):
+Apply the **`senior-frontend`** skill's standards (lives at `.claude/skills/senior-frontend/`; read its `references/` for depth):
 
 - **Server Components by default.** Add `'use client'` ONLY for event handlers, state, effects, or browser APIs. Keep client components small and at the leaves.
 - **Semantic HTML + a11y:** real `<button>`/`<nav>`/`<main>`, keyboard-focusable interactive elements, `aria-label` for icon-only controls, `aria-hidden` on decorative icons, visible `focus-visible` rings, ≥4.5:1 contrast.
-- **Class names:** use a `cn()` helper (clsx + tailwind-merge) once the design system lands (E6); don't hand-concatenate.
+- **Class names:** use the `cn()` helper (`src/lib/cn.ts`, clsx + tailwind-merge); don't hand-concatenate.
 - **Images:** `next/image` with explicit width/height or `fill` + `sizes`; `priority` only above the fold.
 - **Bundle discipline:** keep it lean (currently 100/100 on the analyzer). Prefer native `fetch` over axios, `date-fns`/`dayjs` over moment; add `experimental.optimizePackageImports` when introducing an icon lib.
 - Extract reusable logic into custom hooks; prefer composition (compound components) over prop-drilling.

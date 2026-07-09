@@ -38,3 +38,25 @@ export function supabasePublicEnv(): { url: string; anonKey: string } {
     anonKey: parsed.data.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   };
 }
+
+/**
+ * Like {@link supabasePublicEnv} but returns `null` instead of throwing when
+ * Supabase isn't configured. Lets the app run out-of-the-box on a fresh clone
+ * (e.g. trying the fake planner) — the proxy simply skips session refresh when
+ * there's no project to talk to.
+ */
+export function optionalSupabasePublicEnv(): {
+  url: string;
+  anonKey: string;
+} | null {
+  const parsed = publicSchema.safeParse({
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
+  return parsed.success
+    ? {
+        url: parsed.data.NEXT_PUBLIC_SUPABASE_URL,
+        anonKey: parsed.data.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      }
+    : null;
+}
