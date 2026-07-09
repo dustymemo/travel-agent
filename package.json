@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
+    "db:types": "supabase gen types typescript --linked > src/types/supabase.ts",
     "prepare": "husky"
   },
   "lint-staged": {
