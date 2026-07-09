@@ -37,4 +37,9 @@ COPY --from=build --chown=node:node /app/public ./public
 USER node
 
 EXPOSE 3000
+
+# Liveness probe hits /api/health using node's built-in fetch (no curl in slim).
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["node", "server.js"]
