@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * Roam design tokens (TA-53) — a warm, editorial palette lifted from the
+ * "Roam Trip Planner" design. A focused subset for the MVP shell; the full
+ * design system (all category/state shades, spacing scale) lands in E6.
+ *
+ * Exposed to Tailwind via @theme so utilities like `bg-canvas`, `text-ink`,
+ * `bg-surface`, `text-terracotta`, `font-display` are generated.
+ */
+@theme {
+  /* Surfaces */
+  --color-canvas: #e7ddc9; /* page background */
+  --color-surface: #f5efe3; /* cards / panels */
+  --color-surface-2: #fcfaf4; /* lighter surface */
+  --color-line: #dbceb4; /* hairline borders */
+
+  /* Ink / text */
+  --color-ink: #2c271f; /* primary text + dark surfaces (nav rail) */
+  --color-ink-soft: #6b6156; /* muted text */
+  --color-rail-active: #3c362b; /* nav active background */
+  --color-rail-idle: #b5a88f; /* nav idle text */
+
+  /* Accents */
+  --color-terracotta: #bc6a47; /* primary accent */
+  --color-terracotta-deep: #9e5133; /* accent hover */
+  --color-peach: #e7c6a0; /* soft hero accent */
+  --color-olive: #5e6b3f; /* success / activity */
+  --color-amber: #c89a3a; /* mid scores / food */
+
+  /* Stop category dots (Transport/Stay/Food/Activity/Explore) */
+  --color-cat-transport: #8a7e6b;
+  --color-cat-stay: #bc6a47;
+  --color-cat-food: #c89a3a;
+  --color-cat-activity: #5e6b3f;
+  --color-cat-explore: #9a8e7a;
+
+  /* Fonts (wired up in layout.tsx via next/font) */
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+  --font-sans: var(--font-hanken-grotesk), system-ui, sans-serif;
+  --font-mono: ui-monospace, Menlo, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-canvas);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
 }
