@@ -1,0 +1,72 @@
+{
+  "slug": "vancouver",
+  "name": "Vancouver",
+  "country": "Canada",
+  "currency": "CAD",
+  "timezone": "America/Vancouver",
+  "transitCard": {
+    "value": {
+      "name": "Compass Card",
+      "notes": "Reloadable tap card for Metro Vancouver transit. Tap in and out on SkyTrain, SeaBus, and West Coast Express; tap on when boarding buses. Buy at station vending machines, London Drugs, or compasscard.ca. A YVR AddFare (CA$6.50 as of July 1, 2026) applies when exiting the airport SkyTrain station."
+    },
+    "source": "https://www.translink.ca/transit-fares/compass-card",
+    "lastVerified": "2026-07-08"
+  },
+  "plug": {
+    "value": { "types": ["A", "B"], "voltage": 120 },
+    "source": "https://www.iec.ch/world-plugs",
+    "lastVerified": "2026-07-08"
+  },
+  "tipping": {
+    "value": "15–20% on the pre-tax total at sit-down restaurants; payment terminals usually prompt 15/18/20%. Not expected at counter/quick service. Roughly 15% for taxis, and a couple of dollars per bag or per night for porters and housekeeping.",
+    "source": "https://wise.com/us/travel-money/tip-calculator/canada",
+    "lastVerified": "2026-07-08"
+  },
+  "apps": [
+    {
+      "value": {
+        "name": "Transit",
+        "why": "Real-time SkyTrain, bus, and SeaBus departures plus trip planning across Metro Vancouver."
+      },
+      "source": "https://transitapp.com/",
+      "lastVerified": "2026-07-08"
+    },
+    {
+      "value": {
+        "name": "TransLink",
+        "why": "Official Metro Vancouver transit authority — service alerts, schedules, and Compass Card info."
+      },
+      "source": "https://www.translink.ca/",
+      "lastVerified": "2026-07-08"
+    }
+  ],
+  "emergencyNumber": "911",
+  "entryRules": {
+    "value": "Visa-exempt foreign nationals need an eTA (CA$7, linked to the passport, valid up to 5 years) to fly into Canada; it is not required when arriving by car, bus, train, or boat. US citizens are exempt. Other travellers may need a visitor visa.",
+    "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
+    "lastVerified": "2026-07-08"
+  },
+  "cashNorms": {
+    "value": "Cards and contactless (tap) are accepted almost everywhere and are the norm; carry a little cash for tips, small vendors, and farmers' markets. Listed prices are pre-tax — GST and PST are added at checkout.",
+    "source": "https://wise.com/us/travel-money/tip-calculator/canada",
+    "lastVerified": "2026-07-08"
+  },
+  "seasons": [
+    {
+      "value": {
+        "season": "summer",
+        "notes": "Jun–Aug: warm, dry, and sunny with highs around 20–23°C — the driest season and the best window for the outdoors."
+      },
+      "source": "https://www.destinationvancouver.com/plan-your-trip/climate-and-weather",
+      "lastVerified": "2026-07-08"
+    },
+    {
+      "value": {
+        "season": "winter",
+        "notes": "Dec–Feb: mild but wet, roughly 0–10°C, with rain far more common than snow downtown. Pack a waterproof layer."
+      },
+      "source": "https://www.destinationvancouver.com/plan-your-trip/climate-and-weather",
+      "lastVerified": "2026-07-08"
+    }
+  ]
+}
