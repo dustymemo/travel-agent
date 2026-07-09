@@ -1,32 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegistrar } from "@/components/pwa/ServiceWorkerRegistrar";
+import { NavRail } from "@/components/shell/NavRail";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
+  weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const hankenGrotesk = Hanken_Grotesk({
+  variable: "--font-hanken-grotesk",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  applicationName: "Travel Agent",
-  title: "Travel Agent",
+  applicationName: "Roam",
+  title: "Roam — AI trip planner",
   description:
-    "AI travel planner — day-by-day plans, packing lists, budget, and maps.",
+    "Tell Roam your dates and vibe. Get a whole day-by-day trip in a minute.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Travel",
+    title: "Roam",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0ea5e9",
+  themeColor: "#e7ddc9",
 };
 
 export default function RootLayout({
@@ -37,10 +39,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${instrumentSerif.variable} ${hankenGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {children}
+      <body className="min-h-full">
+        <div className="flex min-h-dvh">
+          <NavRail />
+          <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+        </div>
         <ServiceWorkerRegistrar />
       </body>
     </html>
