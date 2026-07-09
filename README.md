@@ -14,11 +14,13 @@ phone visual).
 Work is tracked as epics **E1–E10** in Jira. Progress so far:
 
 - ✅ **E1 · Foundation** — Next.js 16 scaffold, pluggable AI provider (`claude-cli` /
-  `claude-api`), config, Zod schemas, Supabase clients, Docker, test infra, **PWA**
-  (installable + offline)
-- 🚧 **E2 · City data** (Vancouver seed) — in progress
-- ⬜ **E3** Core planner · **E4** Budget · **E5** Map · **E6** Timeline UI ·
-  **E7** Save & eval · **E8** Export · **E9** Booking links · **E10** Model-output evals
+  `claude-api`), config, Zod schemas, Supabase clients + schema/RLS, Docker, test
+  infra, **PWA** (installable + offline)
+- ✅ **E2 · City data** (Vancouver seed) — source-cited `CityData`, loader, and the
+  `cityFactsForPrompt()` fragment that grounds the AI
+- 🚧 **E3 · Core planner** — next up
+- ⬜ **E4** Budget · **E5** Map · **E6** Timeline UI · **E7** Save & eval ·
+  **E8** Export · **E9** Booking links · **E10** Model-output evals
 
 Conventions for contributors/agents live in [`AGENTS.md`](./AGENTS.md) (TDD is
 mandatory; `src/lib/` stays framework-free). Reusable `senior-*` skills are vendored
@@ -49,27 +51,94 @@ Next.js 16 · React 19 · TypeScript · Tailwind v4 · Zustand · Zod ·
 Supabase (Postgres/Auth/Storage) · Leaflet + OpenStreetMap · Open-Meteo ·
 Vitest + Testing Library + MSW.
 
-## Development
+## Getting started
+
+### Prerequisites
+
+- **Node.js 20+** and npm
+- A free **Supabase** project — https://supabase.com (for the database + auth)
+- **Phase 1 AI:** the [`claude` CLI](https://docs.claude.com/en/docs/claude-code)
+  logged in with your Claude (Gmail) account (`claude` local dev is free)
+- **Optional:** Docker Desktop (only for the containerized deploy)
+
+### 1. Install
 
 ```bash
+git clone https://github.com/dustymemo/travel-agent.git
+cd travel-agent
 npm install
-cp .env.example .env.local   # fill in Supabase; CLI uses your local `claude` login
-npm run dev                  # http://localhost:3000
 ```
 
-### Test-driven development
+### 2. Configure environment
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in `.env.local`:
+
+| Variable                        | Where to find it                                              |
+| ------------------------------- | ------------------------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase Dashboard → **Settings → API** → Project URL        |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → **Settings → API** → `anon` public key  |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase Dashboard → **Settings → API** → `service_role` key |
+| `TRAVEL_AI_PROVIDER`            | Leave `claude-cli` for local dev (uses your logged-in CLI)   |
+
+`.env.local` is gitignored — never commit real keys.
+
+### 3. Set up the database
+
+The schema (tables + row-level security) lives in `supabase/migrations/`. Apply it
+to **your** Supabase project with the Supabase CLI (run via `npx` — no global install
+needed):
+
+```bash
+npx supabase login                                   # opens a browser to authenticate
+npx supabase link --project-ref <your-project-ref>   # links this repo to your project
+npx supabase db push                                 # applies migrations to the remote DB
+```
+
+- **`<your-project-ref>`** is the 20-character id in your project URL —
+  `https://<your-project-ref>.supabase.co` (same as the subdomain in
+  `NEXT_PUBLIC_SUPABASE_URL`).
+- `link` / `db push` prompt for your **database password**
+  (Supabase Dashboard → **Settings → Database**; "Reset database password" if
+  you don't have it saved).
+- `db push` applies [`0001_init.sql`](./supabase/migrations/0001_init.sql), which
+  creates the `trips` and `feedback` tables, enables RLS, and adds owner-scoped
+  policies. **Until this runs, the app has no tables and RLS protects nothing.**
+
+After any schema change, regenerate the typed database definitions:
+
+```bash
+npm run db:types    # writes src/types/supabase.ts from the linked project
+```
+
+> No CLI? You can instead paste the contents of
+> `supabase/migrations/0001_init.sql` into the Supabase Dashboard → **SQL Editor**
+> and run it once.
+
+### 4. Run the app
+
+```bash
+npm run dev         # http://localhost:3000
+```
+
+## Test-driven development
 
 This project is **TDD**: write the failing test first, then implement, then refactor.
 
 ```bash
-npm test            # run once
+npm test            # run the suite once
 npm run test:watch  # watch mode
 npm run test:coverage
-npm run typecheck
+npm run typecheck   # tsc --noEmit
+npm run lint
 ```
 
 A `FakeProvider` (`src/lib/ai/fake.ts`) implements the AI interface with canned
 JSON so planner/budget logic is tested deterministically — no real Claude calls.
+Coverage is gated on `src/lib/` (90% lines/stmts, 80% branches).
 
 ## Phase 1 deploy (self-host, free)
 
