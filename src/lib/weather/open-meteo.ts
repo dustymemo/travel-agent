@@ -93,6 +93,35 @@ export function historicalWindow(
   };
 }
 
+const DAY_MS = 86_400_000;
+
+/**
+ * Map an explicit (possibly future) trip window onto the same calendar dates in
+ * the most recent year the archive has data for (~5-day lag). Sampling the exact
+ * days is more precise than a whole-month average.
+ */
+export function windowFromRange(
+  startIso: string,
+  endIso: string,
+  now: Date,
+): { start: string; end: string; label: string } {
+  const [sy, sm, sd] = startIso.split("-").map(Number);
+  const [ey, em, ed] = endIso.split("-").map(Number);
+  const crossesYear = ey - sy; // 0, or 1 when the trip spans New Year
+
+  let year = sy;
+  const cutoff = now.getTime() - 5 * DAY_MS;
+  while (Date.UTC(year + crossesYear, em - 1, ed) > cutoff) year--;
+
+  const start = `${year}-${pad2(sm)}-${pad2(sd)}`;
+  const end = `${year + crossesYear}-${pad2(em)}-${pad2(ed)}`;
+  const label =
+    sm === em && !crossesYear
+      ? `${MONTHS[sm - 1]} ${sd}–${ed}, ${year}`
+      : `${MONTHS[sm - 1]} ${sd} – ${MONTHS[em - 1]} ${ed}, ${year + crossesYear}`;
+  return { start, end, label };
+}
+
 /** Geocode a place name to coordinates (first match), or null. */
 export async function geocodePlace(
   place: string,
@@ -128,16 +157,21 @@ export async function geocodePlace(
  */
 export async function getDestinationClimate(
   place: string,
-  opts: { now?: Date; month?: number } = {},
+  opts: {
+    now?: Date;
+    month?: number;
+    range?: { start: string; end: string };
+  } = {},
   fetchFn: FetchFn = fetch,
 ): Promise<Climate | null> {
   const geo = await geocodePlace(place, fetchFn);
   if (!geo) return null;
 
   const now = opts.now ?? new Date();
-  const month = opts.month ?? now.getMonth() + 1;
-  // Sample the most recent completed year for a future-trip climate proxy.
-  const { start, end, label } = historicalWindow(month, now.getFullYear() - 1);
+  // Prefer an explicit trip window (exact days); else the month's climate proxy.
+  const { start, end, label } = opts.range
+    ? windowFromRange(opts.range.start, opts.range.end, now)
+    : historicalWindow(opts.month ?? now.getMonth() + 1, now.getFullYear() - 1);
 
   const url =
     `${config.services.weatherBaseUrl}?latitude=${geo.lat}&longitude=${geo.lon}` +

@@ -106,6 +106,19 @@ export const Message = z.object({
 });
 export type Message = z.infer<typeof Message>;
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** An explicit trip window (inclusive), e.g. 2026-09-09 → 2026-09-15. */
+export const TripDates = z
+  .object({
+    start: z.string().regex(ISO_DATE),
+    end: z.string().regex(ISO_DATE),
+  })
+  .refine((d) => d.start <= d.end, {
+    message: "start must be on or before end",
+  });
+export type TripDates = z.infer<typeof TripDates>;
+
 /**
  * What the planner brain returns each turn: a short chat reply to show in the
  * conversation, plus the full (re)generated itinerary to render beside it.

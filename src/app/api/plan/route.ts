@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { Message, Itinerary } from "@/types/trip";
+import { Message, Itinerary, TripDates } from "@/types/trip";
 import { createProvider } from "@/lib/ai";
 import { FakeProvider } from "@/lib/ai/fake";
 import type { TravelAIProvider } from "@/lib/ai/provider";
@@ -8,6 +8,7 @@ import { createAiRateLimiter, RateLimitError } from "@/lib/ai/rate-limit";
 import { planTurn, PlannerError } from "@/lib/planner/plan";
 import { fakePlannerResponse } from "@/lib/planner/fake-plan";
 import { weatherGroundingFor } from "@/lib/weather/grounding";
+import { formatTripDatesNote } from "@/lib/dates";
 
 /**
  * Plan route (TA-17) — runs one turn of the planner brain (TA-18) server-side,
@@ -19,6 +20,7 @@ export const dynamic = "force-dynamic";
 const PlanRequest = z.object({
   messages: z.array(Message).min(1),
   currentItinerary: Itinerary.optional(),
+  dates: TripDates.optional(),
 });
 
 // Shared across requests so limits actually apply.
@@ -49,10 +51,15 @@ export async function POST(request: Request) {
 
   try {
     const provider = resolveProvider();
-    // Best-effort weather grounding (TA-20); never blocks planning on failure.
-    const climate = await weatherGroundingFor(body.messages).catch(() => null);
+    // Ground the plan in explicit dates (TA-57) + best-effort weather (TA-20);
+    // both optional and never block planning on failure.
+    const datesNote = body.dates ? formatTripDatesNote(body.dates) : null;
+    const weather = await weatherGroundingFor(body.messages, {
+      dates: body.dates,
+    }).catch(() => null);
+    const grounding = [datesNote, weather].filter(Boolean).join("\n\n") || null;
     const result = await limiter.run(() =>
-      planTurn(provider, body.messages, body.currentItinerary, climate),
+      planTurn(provider, body.messages, body.currentItinerary, grounding),
     );
     return NextResponse.json(result);
   } catch (err) {

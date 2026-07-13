@@ -4,15 +4,21 @@
  * Best-effort — returns null (never throws) so the planner works unchanged when
  * there's no clear destination or the weather service is unavailable.
  */
-import type { Message } from "@/types/trip";
+import type { Message, TripDates } from "@/types/trip";
 import { extractTripHints } from "./hints";
 import { getDestinationClimate, climateFactsForPrompt } from "./open-meteo";
 
 type FetchFn = typeof fetch;
 
+/**
+ * Weather grounding block for the conversation. When explicit trip `dates` are
+ * given they drive the exact sample window (precise); otherwise we fall back to
+ * a month extracted from the chat. The destination is always read from the
+ * messages.
+ */
 export async function weatherGroundingFor(
   messages: Message[],
-  opts: { now?: Date } = {},
+  opts: { now?: Date; dates?: TripDates } = {},
   fetchFn: FetchFn = fetch,
 ): Promise<string | null> {
   const { place, month } = extractTripHints(messages);
@@ -20,7 +26,9 @@ export async function weatherGroundingFor(
 
   const climate = await getDestinationClimate(
     place,
-    { now: opts.now, month: month ?? undefined },
+    opts.dates
+      ? { now: opts.now, range: opts.dates }
+      : { now: opts.now, month: month ?? undefined },
     fetchFn,
   );
   return climate ? climateFactsForPrompt(climate) : null;

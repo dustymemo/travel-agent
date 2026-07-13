@@ -4,6 +4,7 @@ import {
   getDestinationClimate,
   climateFactsForPrompt,
   historicalWindow,
+  windowFromRange,
 } from "./open-meteo";
 
 const geoBody = {
@@ -61,6 +62,29 @@ describe("historicalWindow", () => {
   });
 });
 
+describe("windowFromRange", () => {
+  it("maps a future trip window onto the most recent completed year", () => {
+    // Trip Sep 9–15 2026, "now" is Jul 2026 → sample Sep 2025.
+    expect(
+      windowFromRange("2026-09-09", "2026-09-15", new Date("2026-07-12")),
+    ).toEqual({
+      start: "2025-09-09",
+      end: "2025-09-15",
+      label: "Sep 9–15, 2025",
+    });
+  });
+
+  it("keeps a window that is already safely in the past", () => {
+    expect(
+      windowFromRange("2025-05-01", "2025-05-05", new Date("2026-07-12")),
+    ).toEqual({
+      start: "2025-05-01",
+      end: "2025-05-05",
+      label: "May 1–5, 2025",
+    });
+  });
+});
+
 describe("geocodePlace", () => {
   it("returns the first match as lat/lon", async () => {
     const { fn, urls } = fakeFetch();
@@ -104,6 +128,21 @@ describe("getDestinationClimate", () => {
     // samples last completed year (2025) for the requested month
     expect(urls[1]).toContain("start_date=2025-07-01");
     expect(urls[1]).toContain("end_date=2025-07-31");
+  });
+
+  it("samples an explicit date range when given, over a month", async () => {
+    const { fn, urls } = fakeFetch();
+    const climate = await getDestinationClimate(
+      "Kyoto",
+      {
+        now: new Date("2026-07-12"),
+        range: { start: "2026-09-09", end: "2026-09-15" },
+      },
+      fn,
+    );
+    expect(climate!.window).toBe("Sep 9–15, 2025");
+    expect(urls[1]).toContain("start_date=2025-09-09");
+    expect(urls[1]).toContain("end_date=2025-09-15");
   });
 
   it("returns null when the place can't be geocoded", async () => {

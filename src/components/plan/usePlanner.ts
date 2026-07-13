@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { Message, Itinerary } from "@/types/trip";
+import type { Message, Itinerary, TripDates } from "@/types/trip";
 
 export type PlannerStatus = "idle" | "loading" | "error";
 
@@ -9,6 +9,9 @@ export interface UsePlanner {
   messages: Message[];
   itinerary: Itinerary | null;
   status: PlannerStatus;
+  /** Optional trip dates; grounds planning + weather on the exact window. */
+  dates: TripDates | null;
+  setDates: (dates: TripDates | null) => void;
   /** Send a traveler message; the plan updates in place. No-op while loading. */
   send: (content: string) => Promise<void>;
 }
@@ -22,6 +25,7 @@ export function usePlanner(): UsePlanner {
   const [messages, setMessages] = useState<Message[]>([]);
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [status, setStatus] = useState<PlannerStatus>("idle");
+  const [dates, setDates] = useState<TripDates | null>(null);
 
   const send = useCallback(
     async (content: string) => {
@@ -42,6 +46,7 @@ export function usePlanner(): UsePlanner {
           body: JSON.stringify({
             messages: outgoing,
             currentItinerary: itinerary ?? undefined,
+            dates: dates ?? undefined,
           }),
         });
         if (!res.ok) throw new Error(`Plan request failed: ${res.status}`);
@@ -60,8 +65,8 @@ export function usePlanner(): UsePlanner {
         setStatus("error");
       }
     },
-    [messages, itinerary, status],
+    [messages, itinerary, status, dates],
   );
 
-  return { messages, itinerary, status, send };
+  return { messages, itinerary, status, dates, setDates, send };
 }
