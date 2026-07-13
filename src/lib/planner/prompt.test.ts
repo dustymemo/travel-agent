@@ -12,6 +12,13 @@ describe("buildPlannerRequest", () => {
     expect(system).toContain("itinerary");
   });
 
+  it("requires every itinerary field so output stays schema-valid", () => {
+    const { system } = buildPlannerRequest([say("plan me a trip")]);
+    expect(system).toMatch(/required/i);
+    expect(system).toMatch(/packing/i);
+    expect(system).toMatch(/tips/i);
+  });
+
   it("pins currency + units from config (CAD, metric)", () => {
     const { system } = buildPlannerRequest([say("plan me a trip")]);
     expect(system).toContain("CAD");

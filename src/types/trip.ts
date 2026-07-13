@@ -76,12 +76,23 @@ export const BudgetLine = z.object({
 });
 export type BudgetLine = z.infer<typeof BudgetLine>;
 
+/**
+ * An app-to-download suggestion. Tolerant of real model output: sometimes it
+ * returns a bare app-name string instead of {name, why}, or omits `why`.
+ * Coerce both into the canonical shape rather than failing the whole plan.
+ */
+export const AppRec = z.preprocess(
+  (v) => (typeof v === "string" ? { name: v } : v),
+  z.object({ name: z.string(), why: z.string().default("") }),
+);
+export type AppRec = z.infer<typeof AppRec>;
+
 /** The full AI-generated plan for a single trip (or one budget tier). */
 export const Itinerary = z.object({
   summary: z.string(),
   days: z.array(DayPlan),
   packing: z.array(z.string()),
-  apps: z.array(z.object({ name: z.string(), why: z.string() })),
+  apps: z.array(AppRec),
   tips: z.array(z.string()),
   budget: z.array(BudgetLine),
   budgetTierCad: z.number().positive().optional(), // set when this is one tier of several
