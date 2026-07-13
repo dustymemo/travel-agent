@@ -50,7 +50,7 @@ export function detectCityFacts(text: string): string | null {
 export function buildPlannerRequest(
   messages: Message[],
   currentItinerary?: Itinerary,
-  climate?: string | null,
+  grounding?: string | null,
 ): PlannerRequest {
   const conversation = messages
     .map((m) => `${m.role === "user" ? "Traveler" : "Roam"}: ${m.content}`)
@@ -76,7 +76,7 @@ export function buildPlannerRequest(
     );
   }
 
-  if (climate) parts.push(climate);
+  if (grounding) parts.push(grounding);
 
   if (currentItinerary) {
     parts.push(

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { usePlanner } from "./usePlanner";
 import { ItineraryPanel } from "./ItineraryPanel";
 import { SaveTripButton } from "./SaveTripButton";
+import { DateRange } from "./DateRange";
 import { cn } from "@/lib/cn";
 
 /** One-tap refinements — the fake planner (and a real model) understand these. */
@@ -15,7 +16,7 @@ const QUICK_REPLIES = ["Make it cheaper", "Trains instead", "Add a food tour"];
  * and messages are presentational.
  */
 export function PlanChat() {
-  const { messages, itinerary, status, send } = usePlanner();
+  const { messages, itinerary, status, setDates, send } = usePlanner();
   const [draft, setDraft] = useState("");
   const started = messages.length > 0;
 
@@ -92,6 +93,10 @@ export function PlanChat() {
             ))}
           </div>
         )}
+
+        <div className="pt-2">
+          <DateRange onChange={setDates} />
+        </div>
 
         <form onSubmit={onSubmit} className="flex items-center gap-2 pt-2">
           <label htmlFor="roam-input" className="sr-only">
