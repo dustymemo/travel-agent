@@ -30,6 +30,8 @@ export const config = {
   /** Free, no-key external services. */
   services: {
     weatherBaseUrl: "https://archive-api.open-meteo.com/v1/archive",
+    /** Open-Meteo geocoding (no key) — turns a place name into lat/lon. */
+    weatherGeocodeBaseUrl: "https://geocoding-api.open-meteo.com/v1/search",
     geocodeBaseUrl: "https://nominatim.openstreetmap.org",
     overpassBaseUrl: "https://overpass-api.de/api/interpreter",
     /** Sent as User-Agent to OSM services (their usage policy requires it). */

@@ -7,6 +7,7 @@ import type { TravelAIProvider } from "@/lib/ai/provider";
 import { createAiRateLimiter, RateLimitError } from "@/lib/ai/rate-limit";
 import { planTurn, PlannerError } from "@/lib/planner/plan";
 import { fakePlannerResponse } from "@/lib/planner/fake-plan";
+import { weatherGroundingFor } from "@/lib/weather/grounding";
 
 /**
  * Plan route (TA-17) — runs one turn of the planner brain (TA-18) server-side,
@@ -48,8 +49,10 @@ export async function POST(request: Request) {
 
   try {
     const provider = resolveProvider();
+    // Best-effort weather grounding (TA-20); never blocks planning on failure.
+    const climate = await weatherGroundingFor(body.messages).catch(() => null);
     const result = await limiter.run(() =>
-      planTurn(provider, body.messages, body.currentItinerary),
+      planTurn(provider, body.messages, body.currentItinerary, climate),
     );
     return NextResponse.json(result);
   } catch (err) {
