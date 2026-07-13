@@ -91,6 +91,6 @@ describe("planTurn", () => {
     await expect(planTurn(provider, [ask("hi")])).rejects.toBeInstanceOf(
       PlannerError,
     );
-    expect(call).toBe(2); // one initial attempt + one retry
+    expect(call).toBe(3); // one initial attempt + two retries
   });
 });

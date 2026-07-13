@@ -19,16 +19,17 @@ export class PlannerError extends Error {
   }
 }
 
-/** Total generate() attempts per turn before giving up (1 retry). */
-const MAX_ATTEMPTS = 2;
+/** Total generate() attempts per turn before giving up (2 retries). */
+const MAX_ATTEMPTS = 3;
 
 /**
  * Run one planning turn. On the first turn `messages` alone drafts a plan;
  * pass `currentItinerary` on later turns so the model refines it. The result
  * is schema-validated (Zod), so callers get a trustworthy {@link Itinerary}.
  *
- * The real `claude` CLI occasionally emits empty or non-JSON stdout, so an
- * unusable output is retried once before surfacing a {@link PlannerError}.
+ * The real `claude` CLI occasionally emits empty, fenced, or schema-divergent
+ * output, so an unusable result is retried before surfacing a
+ * {@link PlannerError}.
  */
 export async function planTurn(
   provider: TravelAIProvider,
