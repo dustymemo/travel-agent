@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { Message, Itinerary, TripDates } from "@/types/trip";
+import type { Climate } from "@/lib/weather/open-meteo";
 
 export type PlannerStatus = "idle" | "loading" | "error";
 
@@ -9,6 +10,8 @@ export interface UsePlanner {
   messages: Message[];
   itinerary: Itinerary | null;
   status: PlannerStatus;
+  /** Typical weather for the destination/window, when resolvable. */
+  weather: Climate | null;
   /** Optional trip dates; grounds planning + weather on the exact window. */
   dates: TripDates | null;
   setDates: (dates: TripDates | null) => void;
@@ -25,6 +28,7 @@ export function usePlanner(): UsePlanner {
   const [messages, setMessages] = useState<Message[]>([]);
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [status, setStatus] = useState<PlannerStatus>("idle");
+  const [weather, setWeather] = useState<Climate | null>(null);
   const [dates, setDates] = useState<TripDates | null>(null);
 
   const send = useCallback(
@@ -54,12 +58,14 @@ export function usePlanner(): UsePlanner {
         const data = (await res.json()) as {
           reply: string;
           itinerary: Itinerary;
+          weather?: Climate;
         };
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: data.reply },
         ]);
         setItinerary(data.itinerary);
+        setWeather(data.weather ?? null);
         setStatus("idle");
       } catch {
         setStatus("error");
@@ -68,5 +74,5 @@ export function usePlanner(): UsePlanner {
     [messages, itinerary, status, dates],
   );
 
-  return { messages, itinerary, status, dates, setDates, send };
+  return { messages, itinerary, status, weather, dates, setDates, send };
 }

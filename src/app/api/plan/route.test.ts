@@ -3,7 +3,7 @@ import { POST } from "./route";
 
 // Weather grounding hits the network; stub it so route tests stay offline.
 vi.mock("@/lib/weather/grounding", () => ({
-  weatherGroundingFor: vi.fn().mockResolvedValue(null),
+  resolveClimate: vi.fn().mockResolvedValue(null),
 }));
 
 function post(body: unknown): Request {

@@ -5,6 +5,7 @@ import { usePlanner } from "./usePlanner";
 import { ItineraryPanel } from "./ItineraryPanel";
 import { SaveTripButton } from "./SaveTripButton";
 import { DateRange } from "./DateRange";
+import { WeatherBadge } from "./WeatherBadge";
 import { cn } from "@/lib/cn";
 
 /** One-tap refinements — the fake planner (and a real model) understand these. */
@@ -16,7 +17,7 @@ const QUICK_REPLIES = ["Make it cheaper", "Trains instead", "Add a food tour"];
  * and messages are presentational.
  */
 export function PlanChat() {
-  const { messages, itinerary, status, setDates, send } = usePlanner();
+  const { messages, itinerary, status, weather, setDates, send } = usePlanner();
   const [draft, setDraft] = useState("");
   const started = messages.length > 0;
 
@@ -124,7 +125,8 @@ export function PlanChat() {
       <section aria-label="Itinerary" className="flex flex-1 flex-col gap-3">
         {itinerary ? (
           <>
-            <div className="flex justify-end">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {weather ? <WeatherBadge weather={weather} /> : <span />}
               <SaveTripButton itinerary={itinerary} />
             </div>
             <ItineraryPanel itinerary={itinerary} />
