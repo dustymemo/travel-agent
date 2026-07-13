@@ -6,7 +6,56 @@
  */
 import type { Message } from "@/types/trip";
 
-/** Words that end a place phrase or can't themselves be a place. */
+const MONTHS: Record<string, number> = {
+  jan: 1,
+  january: 1,
+  feb: 2,
+  february: 2,
+  mar: 3,
+  march: 3,
+  apr: 4,
+  april: 4,
+  may: 5,
+  jun: 6,
+  june: 6,
+  jul: 7,
+  july: 7,
+  aug: 8,
+  august: 8,
+  sep: 9,
+  sept: 9,
+  september: 9,
+  oct: 10,
+  october: 10,
+  nov: 11,
+  november: 11,
+  dec: 12,
+  december: 12,
+};
+
+/** Words/phrases that begin a date clause, so a place must stop before them. */
+const DATE_WORDS = [
+  "from",
+  "until",
+  "till",
+  "through",
+  "thru",
+  "between",
+  "starting",
+  "start",
+  "beginning",
+  "early",
+  "mid",
+  "late",
+  "sometime",
+  "around",
+];
+
+/**
+ * Words that end a place phrase or can't themselves be a place. Includes month
+ * names + date words so "Tokyo Sept 9 to Sept 15" resolves to "Tokyo", not
+ * "Tokyo Sept".
+ */
 const STOP = new Set([
   "for",
   "next",
@@ -56,34 +105,9 @@ const STOP = new Set([
   "weeks",
   "trip",
   "somewhere",
+  ...DATE_WORDS,
+  ...Object.keys(MONTHS),
 ]);
-
-const MONTHS: Record<string, number> = {
-  jan: 1,
-  january: 1,
-  feb: 2,
-  february: 2,
-  mar: 3,
-  march: 3,
-  apr: 4,
-  april: 4,
-  may: 5,
-  jun: 6,
-  june: 6,
-  jul: 7,
-  july: 7,
-  aug: 8,
-  august: 8,
-  sep: 9,
-  sept: 9,
-  september: 9,
-  oct: 10,
-  october: 10,
-  nov: 11,
-  november: 11,
-  dec: 12,
-  december: 12,
-};
 
 const WORD = /^[A-Za-z][A-Za-z.'-]*$/;
 const strip = (s: string) => s.replace(/[.,;!?]+$/, "");

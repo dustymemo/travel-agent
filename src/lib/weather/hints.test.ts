@@ -28,6 +28,23 @@ describe("extractTripHints", () => {
     expect(extractTripHints([user("Tokyo in October")]).month).toBe(10);
   });
 
+  it("stops the place before a date range, keeping the month", () => {
+    expect(
+      extractTripHints([user("I want to go to Tokyo Sept 9 to Sept 15")]),
+    ).toEqual({ place: "Tokyo", month: 9 });
+    expect(
+      extractTripHints([
+        user("5 days in Kyoto from September 9 to September 15"),
+      ]),
+    ).toEqual({ place: "Kyoto", month: 9 });
+  });
+
+  it("finds no place when only dates are given (no destination)", () => {
+    expect(
+      extractTripHints([user("I want to travel Sept 9 to Sept 15")]),
+    ).toEqual({ place: null, month: 9 });
+  });
+
   it("prefers the most recent traveler message for the place", () => {
     const msgs = [
       user("maybe somewhere in Italy"),
