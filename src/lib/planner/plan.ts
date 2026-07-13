@@ -19,10 +19,16 @@ export class PlannerError extends Error {
   }
 }
 
+/** Total generate() attempts per turn before giving up (1 retry). */
+const MAX_ATTEMPTS = 2;
+
 /**
  * Run one planning turn. On the first turn `messages` alone drafts a plan;
  * pass `currentItinerary` on later turns so the model refines it. The result
  * is schema-validated (Zod), so callers get a trustworthy {@link Itinerary}.
+ *
+ * The real `claude` CLI occasionally emits empty or non-JSON stdout, so an
+ * unusable output is retried once before surfacing a {@link PlannerError}.
  */
 export async function planTurn(
   provider: TravelAIProvider,
@@ -31,8 +37,21 @@ export async function planTurn(
 ): Promise<PlanTurnOutput> {
   const { system, prompt } = buildPlannerRequest(messages, currentItinerary);
 
-  const raw = await provider.generate({ system, prompt, json: true });
+  let lastError: PlannerError | undefined;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const raw = await provider.generate({ system, prompt, json: true });
+      return validatePlan(raw);
+    } catch (err) {
+      if (!(err instanceof PlannerError)) throw err;
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
 
+/** Parse + schema-validate one raw model output into a plan. */
+function validatePlan(raw: string): PlanTurnOutput {
   let parsed: unknown;
   try {
     parsed = extractJson(raw);

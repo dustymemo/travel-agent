@@ -27,7 +27,8 @@ const OUTPUT_CONTRACT = `Respond with ONLY a JSON object (no markdown, no code f
     "tips": string[],
     "budget": [{ "category": "flights"|"hotels"|"food"|"transit"|"activities"|"other", "amountCad": number, "note"?: string }]
   }
-}`;
+}
+Every field is required — never omit "packing", "apps", or "tips". Include at least 3 items in each of those arrays.`;
 
 /**
  * Find verified facts for the first known city named anywhere in the

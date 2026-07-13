@@ -69,4 +69,28 @@ describe("planTurn", () => {
       PlannerError,
     );
   });
+
+  it("retries once and succeeds when the first output is unusable", async () => {
+    // The real claude CLI occasionally emits empty/non-JSON stdout; a single
+    // regeneration recovers it.
+    let call = 0;
+    const provider = new FakeProvider(() =>
+      ++call === 1 ? "" : JSON.stringify(validOutput),
+    );
+    const result = await planTurn(provider, [ask("3 days in Vancouver")]);
+    expect(call).toBe(2);
+    expect(result.itinerary.days).toHaveLength(1);
+  });
+
+  it("throws PlannerError after retries when output stays unusable", async () => {
+    let call = 0;
+    const provider = new FakeProvider(() => {
+      call++;
+      return "still not json";
+    });
+    await expect(planTurn(provider, [ask("hi")])).rejects.toBeInstanceOf(
+      PlannerError,
+    );
+    expect(call).toBe(2); // one initial attempt + one retry
+  });
 });
