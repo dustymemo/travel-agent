@@ -50,6 +50,7 @@ export function detectCityFacts(text: string): string | null {
 export function buildPlannerRequest(
   messages: Message[],
   currentItinerary?: Itinerary,
+  climate?: string | null,
 ): PlannerRequest {
   const conversation = messages
     .map((m) => `${m.role === "user" ? "Traveler" : "Roam"}: ${m.content}`)
@@ -74,6 +75,8 @@ export function buildPlannerRequest(
       `Ground your plan in these ${facts}\nPrefer these verified facts over your own assumptions.`,
     );
   }
+
+  if (climate) parts.push(climate);
 
   if (currentItinerary) {
     parts.push(

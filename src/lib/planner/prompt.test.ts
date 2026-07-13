@@ -38,6 +38,21 @@ describe("buildPlannerRequest", () => {
     expect(system).not.toMatch(/verified local facts/i);
   });
 
+  it("injects the weather grounding block when provided", () => {
+    const climate = "TYPICAL WEATHER for Lisbon (based on Sep 2025) — ...";
+    const { system } = buildPlannerRequest(
+      [say("4 days in Lisbon")],
+      undefined,
+      climate,
+    );
+    expect(system).toContain("TYPICAL WEATHER for Lisbon");
+  });
+
+  it("omits weather grounding when none is given", () => {
+    const { system } = buildPlannerRequest([say("plan me a trip")]);
+    expect(system).not.toMatch(/TYPICAL WEATHER/);
+  });
+
   it("asks to refine the existing itinerary when one is passed", () => {
     const current: Itinerary = {
       summary: "A draft Lisbon trip",

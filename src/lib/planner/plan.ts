@@ -35,8 +35,13 @@ export async function planTurn(
   provider: TravelAIProvider,
   messages: Message[],
   currentItinerary?: Itinerary,
+  climate?: string | null,
 ): Promise<PlanTurnOutput> {
-  const { system, prompt } = buildPlannerRequest(messages, currentItinerary);
+  const { system, prompt } = buildPlannerRequest(
+    messages,
+    currentItinerary,
+    climate,
+  );
 
   let lastError: PlannerError | undefined;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
