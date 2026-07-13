@@ -13,9 +13,11 @@ export const config = {
   ai: {
     /** Which provider the server uses. Override with TRAVEL_AI_PROVIDER. */
     provider: (process.env.TRAVEL_AI_PROVIDER ?? "claude-cli") as
-      "claude-cli" | "claude-api",
-    /** Model id used for planning. */
+      "claude-cli" | "claude-api" | "codex-cli",
+    /** Model id used for planning (claude-cli). */
     model: process.env.TRAVEL_AI_MODEL ?? "claude-sonnet-5",
+    /** Model for the codex-cli provider; empty = Codex CLI's own default. */
+    codexModel: process.env.TRAVEL_CODEX_MODEL ?? "",
     /**
      * Guards the subscription/host against overload (TA-50). Defaults are
      * conservative for a single-user Phase-1 deployment.
