@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { usePlanner } from "./usePlanner";
 import { ItineraryPanel } from "./ItineraryPanel";
+import { SaveTripButton } from "./SaveTripButton";
 import { cn } from "@/lib/cn";
 
 /** One-tap refinements — the fake planner (and a real model) understand these. */
@@ -115,9 +116,14 @@ export function PlanChat() {
         </form>
       </section>
 
-      <section aria-label="Itinerary" className="flex flex-1 flex-col">
+      <section aria-label="Itinerary" className="flex flex-1 flex-col gap-3">
         {itinerary ? (
-          <ItineraryPanel itinerary={itinerary} />
+          <>
+            <div className="flex justify-end">
+              <SaveTripButton itinerary={itinerary} />
+            </div>
+            <ItineraryPanel itinerary={itinerary} />
+          </>
         ) : (
           <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-line p-10 text-center text-ink-soft">
             Your day-by-day plan will appear here.
