@@ -55,6 +55,34 @@ Scope surprises are normal. When you discover the ticket is bigger or different
 than written (an overloaded token, a pre-existing bug), surface it to the user
 with numbers and a recommendation **before** building — don't silently expand.
 
+### Any UI change runs through senior-frontend
+
+Invoke the **`senior-frontend`** skill on every frontend ticket and read its
+`references/` for depth. It is the standard the work is held to, not optional
+advice:
+
+* **Server Components by default.** `'use client'` only for handlers, state,
+  effects, or browser APIs — and keep it at the leaves. A presentational
+  component with no state still renders on the server even when a client parent
+  hands it an `onClick`.
+* **Semantic HTML + a11y.** Real `<button>`/`<nav>`/`<main>`; an anchor that
+  navigates stays an anchor. Export a class-string helper (`buttonClasses()`)
+  next to a component so a `next/link` can wear the skin without impersonating
+  the element — cheaper and honester than an `asChild`/Slot indirection.
+* **`cn()` always** (`src/lib/cn.ts`) — never hand-concatenate or `.join(" ")`.
+* **No new dependency** for styling variants (no cva/shadcn) — bundle discipline.
+
+### Then clean up after yourself
+
+Before opening the PR, re-read your own diff for what it *added*. Duplication
+you introduced is yours to remove — don't file it as someone else's follow-up.
+
+The tell is a class string, or any pattern, written out more than twice.
+`grep -c` the shape across `src/` and prove it collapsed to one definition.
+Extract the smallest thing that fixes it: cleaning up your own mess is in scope
+even when the wider component library is explicitly deferred — just say so in
+the commit and trim the follow-up ticket to match.
+
 ## 3. Verify for real
 
 Tests and typecheck are necessary, not sufficient. Run the gate:
