@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { TripDates } from "@/types/trip";
+import { Input } from "@/components/ui/Input";
 
 /**
  * Optional trip date-range input for the Plan screen (TA-57). Holds its own raw
@@ -27,19 +28,18 @@ export function DateRange({
     <div className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1 text-xs text-ink-soft">
         Trip start
-        <input
+        <Input
           type="date"
           value={start}
           onChange={(e) => {
             setStart(e.target.value);
             commit(e.target.value, end);
           }}
-          className="rounded-lg border border-line bg-field px-3 py-1.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         />
       </label>
       <label className="flex flex-col gap-1 text-xs text-ink-soft">
         Trip end
-        <input
+        <Input
           type="date"
           value={end}
           min={start || undefined}
@@ -47,7 +47,6 @@ export function DateRange({
             setEnd(e.target.value);
             commit(start, e.target.value);
           }}
-          className="rounded-lg border border-line bg-field px-3 py-1.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         />
       </label>
       {invalid && (

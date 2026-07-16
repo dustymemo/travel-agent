@@ -1,4 +1,5 @@
 import { TripsList } from "@/components/trips/TripsList";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 /**
  * Trips (TA-54) — the user's saved plans. A Server Component shell; the list
@@ -8,9 +9,7 @@ import { TripsList } from "@/components/trips/TripsList";
 export default function TripsPage() {
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
-      <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-soft">
-        Roam · Trips
-      </p>
+      <Eyebrow as="p">Roam · Trips</Eyebrow>
       <h1 className="mt-3 font-display text-4xl leading-tight text-ink">
         Your saved trips
       </h1>

@@ -1,6 +1,8 @@
 import type { Itinerary } from "@/types/trip";
 import { budgetTotalCad, dayTotalCad, STOP_DOT } from "@/lib/itinerary";
 import { formatCad } from "@/lib/money";
+import { Card } from "@/components/ui/Card";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { cn } from "@/lib/cn";
 
 /**
@@ -10,12 +12,10 @@ import { cn } from "@/lib/cn";
  */
 export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   return (
-    <article className="flex flex-col gap-6 rounded-2xl border border-line bg-surface p-6">
+    <Card as="article" className="flex flex-col gap-6 p-6">
       <header className="flex items-start justify-between gap-4 border-b border-line pb-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.12em] text-ink-soft">
-            Your itinerary
-          </p>
+          <Eyebrow as="p">Your itinerary</Eyebrow>
           <h2 className="mt-1 font-display text-2xl leading-snug text-ink">
             {itinerary.summary}
           </h2>
@@ -95,16 +95,14 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
           )}
         </div>
       )}
-    </article>
+    </Card>
   );
 }
 
 function FactList({ title, items }: { title: string; items: string[] }) {
   return (
     <section>
-      <h3 className="font-mono text-xs uppercase tracking-[0.12em] text-ink-soft">
-        {title}
-      </h3>
+      <Eyebrow as="h3">{title}</Eyebrow>
       <ul className="mt-2 flex flex-col gap-1 text-sm text-ink">
         {items.map((item, i) => (
           <li key={i}>{item}</li>
