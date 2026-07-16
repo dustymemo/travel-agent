@@ -21,8 +21,11 @@ import { FOCUS_RING } from "./focus";
 type Variant = "primary" | "secondary";
 type Size = "md" | "sm" | "xs" | "icon";
 
+// `pointer-events-none` is not belt-and-braces: CSS `:hover` still matches a
+// disabled <button>, so without it the disabled send button repainted
+// terracotta -> terracotta-deep and advertised itself as clickable.
 const BASE = cn(
-  "inline-flex items-center justify-center rounded-full font-medium transition-colors disabled:opacity-60",
+  "inline-flex items-center justify-center rounded-full font-medium transition-colors disabled:pointer-events-none disabled:opacity-60",
   FOCUS_RING,
 );
 

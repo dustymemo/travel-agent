@@ -32,6 +32,15 @@ describe("buttonClasses", () => {
     }
   });
 
+  it("stops a disabled button reacting to the pointer", () => {
+    // Verified in a browser: :hover still matches a disabled <button>, so
+    // without this the disabled send button repainted terracotta ->
+    // terracotta-deep and looked clickable.
+    for (const variant of ["primary", "secondary"] as const) {
+      expect(buttonClasses(variant)).toContain("disabled:pointer-events-none");
+    }
+  });
+
   it("sizes the call sites the app actually has", () => {
     expect(buttonClasses("primary", "md")).toContain("h-11");
     expect(buttonClasses("primary", "sm")).toContain("py-2");
