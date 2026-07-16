@@ -1,16 +1,34 @@
-import type { Itinerary } from "@/types/trip";
+import type { Itinerary, Activity } from "@/types/trip";
 import { budgetTotalCad, dayTotalCad, STOP_DOT } from "@/lib/itinerary";
 import { formatCad } from "@/lib/money";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/cn";
 
+/** Told the price the traveller typed, and which stop it belongs to. */
+type PriceChangeHandler = (
+  dayNumber: number,
+  activityIndex: number,
+  priceCad: number,
+) => void;
+
 /**
- * The live itinerary panel — a read-only day-by-day timeline with Roam category
- * dots, per-day + trip totals, and the packing/apps/tips the planner returns.
- * Presentational: it renders whatever {@link Itinerary} it's given.
+ * The day-by-day itinerary panel — Roam category dots, per-day + trip totals,
+ * and the packing/apps/tips the planner returns.
+ *
+ * Presentational and stateless: it renders whatever {@link Itinerary} it's given
+ * and reports edits upward. Editing is opt-in via `onPriceChange` because the
+ * same panel renders a *saved* trip in TripDetail, which must stay read-only —
+ * it has nowhere to persist an edit, so it must not offer one.
  */
-export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
+export function ItineraryPanel({
+  itinerary,
+  onPriceChange,
+}: {
+  itinerary: Itinerary;
+  onPriceChange?: PriceChangeHandler;
+}) {
   return (
     <Card as="article" className="flex flex-col gap-6 p-6">
       <header className="flex items-start justify-between gap-4 border-b border-line pb-4">
@@ -45,6 +63,8 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
               )}
             </div>
             <ul className="flex flex-col gap-2 border-l border-line pl-4">
+              {/* Index keys: activities have no id, and the list is never
+                  reordered or filtered here — a re-plan replaces it wholesale. */}
               {day.activities.map((a, i) => (
                 <li key={i} className="flex items-baseline gap-3 text-sm">
                   <span
@@ -59,17 +79,23 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                   </time>
                   <span className="flex-1 text-ink">
                     {a.title}
+                    {a.location && (
+                      <span className="block font-mono text-xs text-ink-soft">
+                        {a.location}
+                      </span>
+                    )}
                     {a.description && (
                       <span className="block text-ink-soft">
                         {a.description}
                       </span>
                     )}
                   </span>
-                  {a.priceCad != null && a.priceCad > 0 && (
-                    <span className="shrink-0 font-mono text-xs text-ink-soft">
-                      {formatCad(a.priceCad)}
-                    </span>
-                  )}
+                  <Price
+                    activity={a}
+                    dayNumber={day.day}
+                    index={i}
+                    onPriceChange={onPriceChange}
+                  />
                 </li>
               ))}
             </ul>
@@ -96,6 +122,49 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         </div>
       )}
     </Card>
+  );
+}
+
+/**
+ * A stop's ticket price: static text when read-only, a number field when the
+ * parent can take an edit. Unpriced stops still get a field so a traveller can
+ * add what the planner missed — but stay blank when read-only rather than
+ * claiming "$0".
+ */
+function Price({
+  activity,
+  dayNumber,
+  index,
+  onPriceChange,
+}: {
+  activity: Activity;
+  dayNumber: number;
+  index: number;
+  onPriceChange?: PriceChangeHandler;
+}) {
+  if (!onPriceChange) {
+    if (activity.priceCad == null || activity.priceCad <= 0) return null;
+    return (
+      <span className="shrink-0 font-mono text-xs text-ink-soft">
+        {formatCad(activity.priceCad)}
+      </span>
+    );
+  }
+
+  return (
+    <Input
+      type="number"
+      min="0"
+      step="1"
+      inputMode="numeric"
+      aria-label={`Ticket price for ${activity.title}`}
+      value={activity.priceCad ?? ""}
+      onChange={(e) =>
+        // An empty field means free, not NaN.
+        onPriceChange(dayNumber, index, Number(e.target.value) || 0)
+      }
+      className="w-20 shrink-0 py-1 text-right font-mono text-xs"
+    />
   );
 }
 

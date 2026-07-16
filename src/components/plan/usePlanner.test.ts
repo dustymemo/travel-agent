@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { usePlanner } from "./usePlanner";
+import type { Itinerary } from "@/types/trip";
 
-const sampleItinerary = {
+const sampleItinerary: Itinerary = {
   summary: "3 days in Vancouver",
   days: [{ day: 1, title: "Arrival", activities: [] }],
   packing: [],
@@ -11,15 +12,29 @@ const sampleItinerary = {
   budget: [],
 };
 
+const pricedItinerary: Itinerary = {
+  ...sampleItinerary,
+  days: [
+    {
+      day: 1,
+      title: "Arrival",
+      activities: [
+        { startTime: "19:00", title: "Dinner", type: "food", priceCad: 45 },
+      ],
+    },
+  ],
+  budget: [{ category: "food", amountCad: 210 }],
+};
+
 afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
-function mockFetchOnce(reply: string) {
+function mockFetchOnce(reply: string, itinerary = sampleItinerary) {
   const fetchMock = vi.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ reply, itinerary: sampleItinerary }),
+    json: async () => ({ reply, itinerary }),
   });
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
@@ -67,5 +82,44 @@ describe("usePlanner", () => {
     await waitFor(() => expect(result.current.status).toBe("error"));
     // the traveler's message is still shown
     expect(result.current.messages[0].content).toBe("plan something");
+  });
+
+  describe("setActivityPrice", () => {
+    it("edits the price and moves the trip total with it", async () => {
+      mockFetchOnce("Here's your plan!", pricedItinerary);
+      const { result } = renderHook(() => usePlanner());
+      await act(async () => {
+        await result.current.send("3 days in Vancouver");
+      });
+
+      act(() => result.current.setActivityPrice(1, 0, 60));
+
+      expect(result.current.itinerary?.days[0].activities[0].priceCad).toBe(60);
+      // food line 210 + the 15 the traveller added
+      expect(result.current.itinerary?.budget[0].amountCad).toBe(225);
+    });
+
+    it("is a no-op before a plan exists", () => {
+      const { result } = renderHook(() => usePlanner());
+      act(() => result.current.setActivityPrice(1, 0, 60));
+      expect(result.current.itinerary).toBeNull();
+    });
+
+    it("lets a re-plan replace edited prices", async () => {
+      // The model owns the itinerary; a new plan supersedes local edits rather
+      // than silently merging into it.
+      mockFetchOnce("Here's your plan!", pricedItinerary);
+      const { result } = renderHook(() => usePlanner());
+      await act(async () => {
+        await result.current.send("3 days in Vancouver");
+      });
+      act(() => result.current.setActivityPrice(1, 0, 60));
+
+      await act(async () => {
+        await result.current.send("make it cheaper");
+      });
+
+      expect(result.current.itinerary?.days[0].activities[0].priceCad).toBe(45);
+    });
   });
 });
