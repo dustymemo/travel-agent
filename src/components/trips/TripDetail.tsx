@@ -5,6 +5,8 @@ import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getTrip, type SavedTrip } from "@/lib/trips/repo";
 import { ItineraryPanel } from "@/components/plan/ItineraryPanel";
+import { FOCUS_RING } from "@/components/ui/focus";
+import { cn } from "@/lib/cn";
 
 type LoadState =
   | { status: "loading" }
@@ -40,7 +42,10 @@ export function TripDetail({ id }: { id: string }) {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
       <Link
         href="/trips"
-        className="font-mono text-xs text-ink-soft underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        className={cn(
+          "font-mono text-xs text-ink-soft underline underline-offset-2",
+          FOCUS_RING,
+        )}
       >
         ← All trips
       </Link>

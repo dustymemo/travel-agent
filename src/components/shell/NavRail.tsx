@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS, isActiveRoute } from "@/lib/nav";
+import { FOCUS_RING_RAIL } from "@/components/ui/focus";
 import { cn } from "@/lib/cn";
 
 /**
@@ -21,7 +22,10 @@ export function NavRail() {
       <Link
         href="/"
         aria-label="Roam home"
-        className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-terracotta font-display text-xl text-rail-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-rail"
+        className={cn(
+          "mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-terracotta font-display text-xl text-rail-ink",
+          FOCUS_RING_RAIL,
+        )}
       >
         R
       </Link>
@@ -36,7 +40,8 @@ export function NavRail() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex flex-col items-center gap-1 border-l-[3px] border-transparent py-3 text-xs font-medium transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-rail",
+                  FOCUS_RING_RAIL,
+                  "focus-visible:ring-inset",
                   active
                     ? "border-terracotta bg-rail-active text-rail-ink"
                     : "text-rail-idle hover:text-rail-ink",

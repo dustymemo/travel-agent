@@ -6,6 +6,10 @@ import { ItineraryPanel } from "./ItineraryPanel";
 import { SaveTripButton } from "./SaveTripButton";
 import { DateRange } from "./DateRange";
 import { WeatherBadge } from "./WeatherBadge";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { cn } from "@/lib/cn";
 
 /** One-tap refinements — the fake planner (and a real model) understand these. */
@@ -36,9 +40,7 @@ export function PlanChat() {
       >
         {!started ? (
           <div className="flex flex-1 flex-col justify-center py-8">
-            <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-soft">
-              Roam · Plan
-            </p>
+            <Eyebrow as="p">Roam · Plan</Eyebrow>
             <h1 className="mt-3 font-display text-4xl leading-tight text-ink">
               Tell Roam your dates and vibe.
             </h1>
@@ -82,15 +84,15 @@ export function PlanChat() {
         {started && (
           <div className="flex flex-wrap gap-2 py-2">
             {QUICK_REPLIES.map((q) => (
-              <button
+              <Button
                 key={q}
-                type="button"
+                variant="secondary"
+                size="xs"
                 onClick={() => void send(q)}
                 disabled={status === "loading"}
-                className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
               >
                 {q}
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -103,22 +105,23 @@ export function PlanChat() {
           <label htmlFor="roam-input" className="sr-only">
             Message Roam
           </label>
-          <input
+          <Input
             id="roam-input"
+            variant="pill"
+            className="flex-1"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Message Roam…"
             autoComplete="off"
-            className="flex-1 rounded-full border border-line bg-field px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           />
-          <button
+          <Button
             type="submit"
+            size="icon"
             aria-label="Send message"
             disabled={status === "loading" || draft.trim().length === 0}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta text-lg text-surface transition-colors hover:bg-terracotta-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
           >
             <span aria-hidden>↑</span>
-          </button>
+          </Button>
         </form>
       </section>
 
@@ -132,9 +135,12 @@ export function PlanChat() {
             <ItineraryPanel itinerary={itinerary} />
           </>
         ) : (
-          <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-line p-10 text-center text-ink-soft">
+          <Card
+            variant="empty"
+            className="flex flex-1 items-center justify-center p-10"
+          >
             Your day-by-day plan will appear here.
-          </div>
+          </Card>
         )}
       </section>
     </div>

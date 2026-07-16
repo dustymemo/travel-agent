@@ -7,6 +7,8 @@ import { listTrips, type SavedTrip } from "@/lib/trips/repo";
 import { budgetTotalCad } from "@/lib/itinerary";
 import { formatCad } from "@/lib/money";
 import { config } from "@/lib/config";
+import { Card, cardClasses } from "@/components/ui/Card";
+import { cn } from "@/lib/cn";
 
 type LoadState =
   | { status: "loading" }
@@ -54,7 +56,7 @@ export function TripsList() {
 
   if (state.trips.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line p-10 text-center text-ink-soft">
+      <Card variant="empty" className="p-10">
         No saved trips yet. Plan one on the{" "}
         <Link
           href="/"
@@ -63,7 +65,7 @@ export function TripsList() {
           Plan
         </Link>{" "}
         screen and hit “Save this trip”.
-      </div>
+      </Card>
     );
   }
 
@@ -73,7 +75,7 @@ export function TripsList() {
         <li key={trip.id}>
           <Link
             href={`/trips/${trip.id}`}
-            className="block rounded-2xl border border-line bg-surface p-5 transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className={cn("block p-5", cardClasses("interactive"))}
           >
             <h2 className="font-display text-xl leading-snug text-ink">
               {trip.title}

@@ -1,5 +1,6 @@
 import { config } from "@/lib/config";
 import { cn } from "@/lib/cn";
+import { FOCUS_RING } from "@/components/ui/focus";
 
 interface VerifiedSourceProps {
   /** The cited source URL (validated upstream by the CityData schema). */
@@ -58,7 +59,8 @@ export function VerifiedSource({
       aria-label={`Verified source: ${host}, last verified ${date}`}
       className={cn(
         "inline-flex items-center gap-1 rounded text-xs font-medium text-olive",
-        "hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
+        "hover:underline",
+        FOCUS_RING,
         className,
       )}
     >

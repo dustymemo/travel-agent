@@ -24,6 +24,34 @@ describe("buttonClasses", () => {
   it("defaults to primary", () => {
     expect(buttonClasses()).toBe(buttonClasses("primary"));
   });
+
+  it("normalises the disabled treatment across every variant", () => {
+    // Was opacity-60 in one file and opacity-50 in two others before TA-60.
+    for (const variant of ["primary", "secondary"] as const) {
+      expect(buttonClasses(variant)).toContain("disabled:opacity-60");
+    }
+  });
+
+  it("stops a disabled button reacting to the pointer", () => {
+    // Verified in a browser: :hover still matches a disabled <button>, so
+    // without this the disabled send button repainted terracotta ->
+    // terracotta-deep and looked clickable.
+    for (const variant of ["primary", "secondary"] as const) {
+      expect(buttonClasses(variant)).toContain("disabled:pointer-events-none");
+    }
+  });
+
+  it("sizes the call sites the app actually has", () => {
+    expect(buttonClasses("primary", "md")).toContain("h-11");
+    expect(buttonClasses("primary", "sm")).toContain("py-2");
+    expect(buttonClasses("secondary", "xs")).toContain("text-xs");
+    // The chat send button is a circular icon target.
+    expect(buttonClasses("primary", "icon")).toContain("w-10");
+  });
+
+  it("defaults to the md size", () => {
+    expect(buttonClasses("primary")).toBe(buttonClasses("primary", "md"));
+  });
 });
 
 describe("Button", () => {

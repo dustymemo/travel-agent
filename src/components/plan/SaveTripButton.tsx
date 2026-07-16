@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { Itinerary } from "@/types/trip";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { saveTrip } from "@/lib/trips/repo";
+import { Button } from "@/components/ui/Button";
+import { FOCUS_RING } from "@/components/ui/focus";
 import { cn } from "@/lib/cn";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -32,28 +34,25 @@ export function SaveTripButton({ itinerary }: { itinerary: Itinerary }) {
 
   return (
     <div className="flex items-center gap-3">
-      <button
-        type="button"
+      <Button
+        size="sm"
         onClick={onSave}
         disabled={status === "saving" || status === "saved"}
-        className={cn(
-          "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-          "bg-terracotta text-surface hover:bg-terracotta-deep",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
-          "disabled:opacity-60",
-        )}
       >
         {status === "saving"
           ? "Saving…"
           : status === "saved"
             ? "Saved ✓"
             : "Save this trip"}
-      </button>
+      </Button>
 
       {status === "saved" && (
         <Link
           href="/trips"
-          className="text-sm text-terracotta-deep underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          className={cn(
+            "text-sm text-terracotta-deep underline underline-offset-2",
+            FOCUS_RING,
+          )}
         >
           View your trips
         </Link>
