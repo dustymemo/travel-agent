@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { buttonClasses } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 /** 404 page for unmatched routes. */
 export default function NotFound() {
@@ -11,10 +13,7 @@ export default function NotFound() {
       <p className="max-w-md text-ink-soft">
         The page you&rsquo;re looking for doesn&rsquo;t exist or has moved.
       </p>
-      <Link
-        href="/"
-        className="mt-2 flex h-11 items-center justify-center rounded-full bg-terracotta px-5 text-surface transition-colors hover:bg-terracotta-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-      >
+      <Link href="/" className={cn("mt-2", buttonClasses())}>
         Go home
       </Link>
     </main>

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { Button, buttonClasses } from "@/components/ui/Button";
 
 /**
  * Route-segment error boundary. Catches errors thrown while rendering a route
@@ -29,17 +30,8 @@ export default function Error({
         An unexpected error occurred. You can try again, or head back home.
       </p>
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={reset}
-          className="flex h-11 items-center justify-center rounded-full bg-terracotta px-5 text-surface transition-colors hover:bg-terracotta-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
-          Try again
-        </button>
-        <Link
-          href="/"
-          className="flex h-11 items-center justify-center rounded-full border border-line px-5 text-ink transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
+        <Button onClick={reset}>Try again</Button>
+        <Link href="/" className={buttonClasses("secondary")}>
           Go home
         </Link>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Button } from "@/components/ui/Button";
 // This route replaces the root layout, so it does not inherit the layout's
 // stylesheet import — without this the tokens below would render unstyled.
 import "./globals.css";
@@ -30,13 +31,7 @@ export default function GlobalError({
         <p className="max-w-md text-ink-soft">
           The app hit an unexpected error. Please try again.
         </p>
-        <button
-          type="button"
-          onClick={reset}
-          className="flex h-11 items-center justify-center rounded-full bg-terracotta px-5 text-surface transition-colors hover:bg-terracotta-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
-          Try again
-        </button>
+        <Button onClick={reset}>Try again</Button>
       </body>
     </html>
   );
