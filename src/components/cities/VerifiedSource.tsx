@@ -1,4 +1,5 @@
 import { config } from "@/lib/config";
+import { cn } from "@/lib/cn";
 
 interface VerifiedSourceProps {
   /** The cited source URL (validated upstream by the CityData schema). */
@@ -55,14 +56,11 @@ export function VerifiedSource({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Verified source: ${host}, last verified ${date}`}
-      className={[
-        "inline-flex items-center gap-1 rounded text-xs font-medium text-emerald-700",
-        "hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
-        "dark:text-emerald-400",
+      className={cn(
+        "inline-flex items-center gap-1 rounded text-xs font-medium text-olive",
+        "hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       <svg
         aria-hidden="true"

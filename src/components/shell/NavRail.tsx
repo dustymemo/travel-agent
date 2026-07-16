@@ -16,12 +16,12 @@ export function NavRail() {
   return (
     <nav
       aria-label="Primary"
-      className="flex w-20 shrink-0 flex-col items-center gap-2 bg-ink py-4 sm:w-24"
+      className="flex w-20 shrink-0 flex-col items-center gap-2 bg-rail py-4 sm:w-24"
     >
       <Link
         href="/"
         aria-label="Roam home"
-        className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-terracotta font-display text-xl text-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-peach"
+        className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-terracotta font-display text-xl text-rail-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-rail"
       >
         R
       </Link>
@@ -36,10 +36,10 @@ export function NavRail() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex flex-col items-center gap-1 border-l-[3px] border-transparent py-3 text-xs font-medium transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-peach",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-rail",
                   active
-                    ? "border-terracotta bg-rail-active text-surface"
-                    : "text-rail-idle hover:text-surface",
+                    ? "border-terracotta bg-rail-active text-rail-ink"
+                    : "text-rail-idle hover:text-rail-ink",
                 )}
               >
                 <span aria-hidden className="text-lg leading-none">

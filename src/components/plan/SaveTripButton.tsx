@@ -39,7 +39,7 @@ export function SaveTripButton({ itinerary }: { itinerary: Itinerary }) {
         className={cn(
           "rounded-full px-4 py-2 text-sm font-medium transition-colors",
           "bg-terracotta text-surface hover:bg-terracotta-deep",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-peach",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus",
           "disabled:opacity-60",
         )}
       >
@@ -53,7 +53,7 @@ export function SaveTripButton({ itinerary }: { itinerary: Itinerary }) {
       {status === "saved" && (
         <Link
           href="/trips"
-          className="text-sm text-terracotta-deep underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+          className="text-sm text-terracotta-deep underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >
           View your trips
         </Link>

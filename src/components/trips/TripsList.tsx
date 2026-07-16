@@ -73,7 +73,7 @@ export function TripsList() {
         <li key={trip.id}>
           <Link
             href={`/trips/${trip.id}`}
-            className="block rounded-2xl border border-line bg-surface p-5 transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+            className="block rounded-2xl border border-line bg-surface p-5 transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             <h2 className="font-display text-xl leading-snug text-ink">
               {trip.title}

@@ -40,7 +40,7 @@ export function TripDetail({ id }: { id: string }) {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
       <Link
         href="/trips"
-        className="font-mono text-xs text-ink-soft underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+        className="font-mono text-xs text-ink-soft underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
       >
         ← All trips
       </Link>
