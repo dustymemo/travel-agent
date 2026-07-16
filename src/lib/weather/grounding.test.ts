@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { weatherGroundingFor } from "./grounding";
+import { resolveClimate } from "./grounding";
 import type { Message } from "@/types/trip";
 
 const geoBody = {
@@ -25,29 +25,29 @@ function fakeFetch() {
 
 const user = (content: string): Message => ({ role: "user", content });
 
-describe("weatherGroundingFor", () => {
-  it("returns a weather block when a destination is found", async () => {
-    const block = await weatherGroundingFor(
+describe("resolveClimate", () => {
+  it("returns a structured climate when a destination is found", async () => {
+    const climate = await resolveClimate(
       [user("4 days in Lisbon in September")],
       { now: new Date("2026-07-12") },
       fakeFetch(),
     );
-    expect(block).toMatch(/lisbon/i);
-    expect(block).toMatch(/TYPICAL WEATHER/);
+    expect(climate?.place).toBe("Lisbon");
+    expect(climate?.avgHighC).toBe(27); // mean(26,28)
+    expect(climate?.avgLowC).toBe(18); // mean(17,19)
   });
 
   it("uses explicit trip dates for the sample window", async () => {
-    const fetchSpy = vi.fn(async (url: string) => ({
-      ok: true,
-      json: async () => (url.includes("geocoding-api") ? geoBody : archiveBody),
-    })) as unknown as typeof fetch;
     const urls: string[] = [];
-    const wrapped = ((u: string) => {
+    const wrapped = (async (u: string) => {
       urls.push(u);
-      return (fetchSpy as (u: string) => Promise<Response>)(u);
+      return {
+        ok: true,
+        json: async () => (u.includes("geocoding-api") ? geoBody : archiveBody),
+      };
     }) as unknown as typeof fetch;
 
-    await weatherGroundingFor(
+    await resolveClimate(
       [user("a week in Lisbon")],
       {
         now: new Date("2026-07-12"),
@@ -60,12 +60,12 @@ describe("weatherGroundingFor", () => {
   });
 
   it("returns null when no destination can be extracted", async () => {
-    const block = await weatherGroundingFor(
+    const climate = await resolveClimate(
       [user("plan me something fun")],
       {},
       fakeFetch(),
     );
-    expect(block).toBeNull();
+    expect(climate).toBeNull();
   });
 
   it("returns null (never throws) when the weather fetch fails", async () => {
@@ -73,11 +73,11 @@ describe("weatherGroundingFor", () => {
       ok: false,
       json: async () => ({}),
     })) as unknown as typeof fetch;
-    const block = await weatherGroundingFor(
+    const climate = await resolveClimate(
       [user("a week in Lisbon")],
       {},
       failing,
     );
-    expect(block).toBeNull();
+    expect(climate).toBeNull();
   });
 });

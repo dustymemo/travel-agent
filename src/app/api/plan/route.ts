@@ -7,7 +7,8 @@ import type { TravelAIProvider } from "@/lib/ai/provider";
 import { createAiRateLimiter, RateLimitError } from "@/lib/ai/rate-limit";
 import { planTurn, PlannerError } from "@/lib/planner/plan";
 import { fakePlannerResponse } from "@/lib/planner/fake-plan";
-import { weatherGroundingFor } from "@/lib/weather/grounding";
+import { resolveClimate } from "@/lib/weather/grounding";
+import { climateFactsForPrompt } from "@/lib/weather/open-meteo";
 import { formatTripDatesNote } from "@/lib/dates";
 
 /**
@@ -54,14 +55,17 @@ export async function POST(request: Request) {
     // Ground the plan in explicit dates (TA-57) + best-effort weather (TA-20);
     // both optional and never block planning on failure.
     const datesNote = body.dates ? formatTripDatesNote(body.dates) : null;
-    const weather = await weatherGroundingFor(body.messages, {
+    const weather = await resolveClimate(body.messages, {
       dates: body.dates,
     }).catch(() => null);
-    const grounding = [datesNote, weather].filter(Boolean).join("\n\n") || null;
+    const weatherNote = weather ? climateFactsForPrompt(weather) : null;
+    const grounding =
+      [datesNote, weatherNote].filter(Boolean).join("\n\n") || null;
     const result = await limiter.run(() =>
       planTurn(provider, body.messages, body.currentItinerary, grounding),
     );
-    return NextResponse.json(result);
+    // Return the structured climate too (TA-58) so the UI can show it.
+    return NextResponse.json({ ...result, weather: weather ?? undefined });
   } catch (err) {
     if (err instanceof RateLimitError) {
       return NextResponse.json(
