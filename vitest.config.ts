@@ -16,7 +16,11 @@ export default defineConfig({
       provider: "v8",
       include: ["src/lib/**"],
       // Exclude thin I/O glue that's exercised via integration/e2e, not units.
-      exclude: ["src/lib/ai/spawn.ts", "src/lib/supabase/**"],
+      exclude: [
+        "src/lib/ai/spawn.ts",
+        "src/lib/ai/codex-spawn.ts",
+        "src/lib/supabase/**",
+      ],
       // The brain is pure logic — hold it to a high bar.
       thresholds: { lines: 90, functions: 90, branches: 80, statements: 90 },
     },
