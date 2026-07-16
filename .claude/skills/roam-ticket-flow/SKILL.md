@@ -1,178 +1,173 @@
 ---
 name: roam-ticket-flow
-description: The end-to-end workflow for picking up and shipping a Roam (travel-agent) ticket — read #travel-agent on Discord for the next piece of work, branch off the TA ticket, build it test-first, open a PR, post it back to Discord for review, and say what comes next. Use whenever the user asks "what's next", "pick up the next ticket", or wants a TA ticket shipped end to end.
+description: End-to-end workflow for shipping a Roam (travel-agent) TA ticket — find the work, branch, build test-first, verify in a browser, open a PR, post it to Discord for review. Use when the user asks "what's next", "pick up the next ticket", or wants a TA ticket shipped end to end.
 ---
 
 # Roam ticket flow
 
-The standing workflow for this repo. Follow it in order; each step feeds the next.
+Phases run in order. Each has a **Do**, a **Never**, and the constants you need.
+
+## Constants
+
+| Thing | Value |
+|---|---|
+| Discord #travel-agent | `1526444993693356112` |
+| Jira cloudId | `4295656b-742a-40a5-8fbf-3d969b5fd5b6` |
+| Jira project | `TA` · browse at `https://david-sun.atlassian.net/browse/TA-<n>` |
+| Transition ids | `21`=In Progress · `31`=In Review · `41`=Done |
+| Branch name | `TA-<n>-<kebab-summary>` |
+| Bot token | `DISCORD_TOKEN` in `~/.claude.json` (`.projects['C:/Users/Dustin/Desktop/Projects'].mcpServers.discord.env`) |
+| Playwright | npx cache, NOT a dependency — see §3 |
+
+---
 
 ## 1. Find the work
 
-Read Discord **#travel-agent** (`1526444993693356112`) — log in with
-`mcp__discord__discord_login` first (token is pre-configured), then
-`mcp__discord__discord_read_messages`. Take the most recent message as the
-intended next piece of work.
+**Do**
+1. `gh pr list` **first**. An unmerged green PR outranks new work — land it.
+2. Read Discord (`discord_login` → `discord_read_messages`).
+3. Fall back to Jira. Ask only for fields you need:
+   `project = TA AND statusCategory != Done ORDER BY priority DESC, key ASC`
+4. Pick on **dependencies** (what unblocks the most), then confirm with `AskUserQuestion`.
 
-**Discord is a hint, not the source of truth.** The channel is often just links
-or notes with no assignment in it. If nothing there names work, say so plainly
-rather than inventing a mandate, then fall back to Jira.
+**Never**
+- Never treat Discord as the source of truth. It is usually links/notes with no assignment. If it names no work, **say so** — do not invent a mandate.
+- Never let the board pick for you: every TA item is Medium priority. It carries no signal.
 
-Jira project **TA**, cloudId `4295656b-742a-40a5-8fbf-3d969b5fd5b6`:
+**Gotchas**
+- That JQL returns >100k chars and blows the tool output limit.
+- No `jq` on this box. Parse with PowerShell `ConvertFrom-Json`.
 
-```
-project = TA AND statusCategory != Done ORDER BY priority DESC, key ASC
-```
-
-That query returns >100k chars — it will blow the tool limit. Ask only for the
-fields you need, or parse the saved file (there is no `jq` on this box; use
-PowerShell `ConvertFrom-Json`).
-
-Before starting anything new, **check for open PRs** (`gh pr list`). Unmerged,
-green PRs are almost always the real next action — landing them beats opening a
-new front.
-
-Every board item is Medium priority, so the board never picks for you. Read the
-descriptions and choose on dependencies (what unblocks the most), then confirm
-with the user via AskUserQuestion rather than guessing.
+---
 
 ## 2. Branch and build
 
-Never commit to master. Branch per ticket: `TA-<n>-<kebab-summary>`. Move the
-ticket to **In Progress** (transition id `21`; `31` = In Review, `41` = Done).
+**Do**
+1. Branch off `master`. Move ticket to In Progress (`21`).
+2. Read `AGENTS.md` + the relevant guide in `node_modules/next/dist/docs/` **before** writing code.
+3. TDD: red → green → refactor. Tests co-located `*.test.ts(x)`.
 
-**TDD is mandatory** (AGENTS.md §1) — red → green → refactor, tests co-located
-as `*.test.ts`. If a test passes the first time you run it, it has never been
-red and proves nothing: mutate the source, watch it fail for the right reason,
-then restore.
+**Never**
+- Never commit to `master`.
+- Never trust a test that passed on first run — it has never been red, so it proves nothing. **Mutate the source, watch it fail for the right reason, restore.**
+- Never silently expand scope. Found an overloaded token / pre-existing bug? Surface it with **numbers + a recommendation** before building.
 
-Read `AGENTS.md` and the relevant guide under `node_modules/next/dist/docs/`
-before writing code — this Next.js (16.2) differs from training data, and
-Tailwind v4 is CSS-first (tokens live in `globals.css`; there is no
-`tailwind.config`).
+**Gotchas**
+- Next.js 16.2 differs from training data. Tailwind v4 is CSS-first: tokens live in `src/app/globals.css`, there is no `tailwind.config`.
+- `git checkout <file>` will NOT restore an untracked file. A "restore" after a mutation test can silently no-op — re-run the test to confirm.
 
-Scope surprises are normal. When you discover the ticket is bigger or different
-than written (an overloaded token, a pre-existing bug), surface it to the user
-with numbers and a recommendation **before** building — don't silently expand.
+### 2a. UI changes: senior-frontend is mandatory
 
-### Any UI change runs through senior-frontend
+**Do**
+1. Invoke the `senior-frontend` skill.
+2. **Read the files in its `references/`.** Open them. The skill summary is NOT the skill.
 
-Invoke the **`senior-frontend`** skill on every frontend ticket and read its
-`references/` for depth. It is the standard the work is held to, not optional
-advice:
+**Never**
+- Never skim headings and call it done. Proof: the reference pairs `disabled:opacity` with `disabled:pointer-events-none`. We shipped only the opacity — and CSS `:hover` still matches a disabled `<button>`, so the disabled send button repainted terracotta→terracotta-deep and looked clickable. Skimming missed it twice; reading caught it in five minutes.
 
-* **Server Components by default.** `'use client'` only for handlers, state,
-  effects, or browser APIs — and keep it at the leaves. A presentational
-  component with no state still renders on the server even when a client parent
-  hands it an `onClick`.
-* **Semantic HTML + a11y.** Real `<button>`/`<nav>`/`<main>`; an anchor that
-  navigates stays an anchor. Export a class-string helper (`buttonClasses()`)
-  next to a component so a `next/link` can wear the skin without impersonating
-  the element — cheaper and honester than an `asChild`/Slot indirection.
-* **`cn()` always** (`src/lib/cn.ts`) — never hand-concatenate or `.join(" ")`.
-* **No new dependency** for styling variants (no cva/shadcn) — bundle discipline.
+**Standards**
+- Server Components by default. `'use client'` only for handlers/state/effects/browser APIs, and only at the leaves. A stateless presentational component still renders on the server even when a client parent passes it `onClick`.
+- Semantic HTML. An anchor that navigates stays an anchor. Export a class-string helper (`buttonClasses()`) next to the component so a `next/link` wears the skin without impersonating the element — cheaper and honester than `asChild`/Slot.
+- Polymorphic `as` for treatments, not elements (`<article>`/`<section>`/`<h3>` must survive).
+- `cn()` always. Never hand-concatenate or `.join(" ")`.
+- No new dependency for variants (no cva/shadcn). Use a `Record` lookup.
+- Colours come from tokens the contrast contract checks (`src/lib/theme/palette.test.ts`). Never hand-pick a hex.
 
-### Then clean up after yourself
+### 2b. Clean up after yourself
 
-Before opening the PR, re-read your own diff for what it *added*. Duplication
-you introduced is yours to remove — don't file it as someone else's follow-up.
+**Do** — before opening the PR, re-read your own diff for what it *added*. Extract the smallest thing that removes duplication you introduced. Prove it with `grep -c` (expect the pattern to collapse to one definition).
 
-The tell is a class string, or any pattern, written out more than twice.
-`grep -c` the shape across `src/` and prove it collapsed to one definition.
-Extract the smallest thing that fixes it: cleaning up your own mess is in scope
-even when the wider component library is explicitly deferred — just say so in
-the commit and trim the follow-up ticket to match.
+**Never** — never file your own mess as someone else's follow-up ticket.
+
+The tell: any class string or pattern written out **more than twice**. Cleaning up your own duplication is in scope even when the wider component work is explicitly deferred — note it in the commit and trim the follow-up ticket.
+
+Don't build a component with **one** call site. That's speculative. Wait for a second, and say so in the PR.
+
+---
 
 ## 3. Verify for real
 
-Tests and typecheck are necessary, not sufficient. Run the gate:
-
-```
+**Do**
+```bash
 npm test && npm run typecheck && npm run lint && npm run build
 ```
+Then drive the app for anything user-visible:
+```bash
+TRAVEL_AI_PROVIDER=fake npm run start   # then Playwright at localhost:3000
+```
 
-Then actually drive the app for anything user-visible. `TRAVEL_AI_PROVIDER=fake
-npm run start`, then Playwright against `localhost:3000`. Playwright is not a
-project dependency (bundle discipline — don't add it): require it from the npx
-cache via `NODE_PATH`, matching the cached version to the installed browser
-build (a version/browser-build mismatch fails with a misleading "run npx
-playwright install"), and drive a real plan end to end.
+**Never**
+- Never stop at green tests. They are necessary, not sufficient.
+- Never conclude from looking at a screenshot. **Probe `getComputedStyle`/DOM instead** — reading pixels is unreliable and a probe will correct you. (It has: a bubble "looked" unflipped in a PNG and was provably correct.)
+- Never add Playwright as a project dependency (bundle discipline).
 
-Prefer probing computed styles/DOM over eyeballing screenshots — reading pixels
-is unreliable, and a probe will correct you. Assert on
-`getComputedStyle(...)`/DOM values, not on how a PNG looks.
+**Playwright setup**
+- Require it from the npx cache via `NODE_PATH`.
+- The cached version MUST match the installed browser build, or it fails with a misleading `run npx playwright install`. Check `playwright-core`'s version against `~/AppData/Local/ms-playwright/`.
+- Playwright's bundled ffmpeg has **no H.264 encoder** — it cannot make mp4.
 
-### Record a video for every frontend ticket
+### 3a. Record a video for every frontend ticket
 
-Any user-visible change ships with a Playwright screen recording — reviewers
-should watch the change, not read a description of it. Use `recordVideo` on the
-context:
+Reviewers should watch the change, not read about it.
 
 ```js
 const ctx = await browser.newContext({
   recordVideo: { dir: OUT, size: { width: 1280, height: 800 } },
-  colorScheme: "dark", // record light and dark separately when theming is in play
+  colorScheme: "dark",              // record light and dark separately
   viewport: { width: 1280, height: 800 },
 });
 // … drive the real flow …
-await ctx.close();            // the .webm is only flushed on close
+await ctx.close();                  // the .webm only flushes on close
 const file = await page.video().path();
 ```
 
-Rules that make the recording watchable:
+- Drive the **real** flow (type, send, await the itinerary). Not a static page load.
+- `waitForTimeout` between beats, or it renders too fast to follow.
+- ~10–20s. Write to the scratchpad, never the repo (`.gitignore` covers `*.webm` as a backstop).
+- For a refactor, the claim is "no pixels moved" — probe computed styles before/after to back it.
 
-* Drive the **real** flow end to end (type a prompt, send it, wait for the
-  itinerary) — not a static page load.
-* `waitForTimeout` between beats so the video is followable; without pauses
-  Playwright renders it far too fast to see.
-* Record **light and dark separately** for theming work, then concatenate.
-* Keep it ~10-20s. Transcode `.webm` → `.mp4` (H.264) with ffmpeg if available:
-  mp4 plays inline reliably across Discord clients, webm does not.
-* Write to the scratchpad, never the repo. `.gitignore` covers
-  `/test-results/`, `/videos/`, `*.webm` as a backstop.
+---
 
 ## 4. PR
 
-Squash-merge is the house style (history reads `TA-57: … (#21)`). Open with
-`gh pr create`. In the body: what changed and why, findings with concrete
-numbers, and an explicit flag on anything visually or behaviourally opinionated
-so the reviewer can push back. End with the Claude Code footer.
+**Do**
+- `gh pr create`. Squash-merge is the house style (`TA-57: … (#21)`).
+- Body: what changed, why, findings **with numbers**, and an explicit ⚠️ flag on anything visually or behaviourally opinionated so the reviewer can push back.
+- End with the Claude Code footer.
+- Deferred work → its own Jira ticket, linked from the PR.
 
-Deferred work gets its own Jira ticket, linked from the PR — never dropped.
+**Never** — never bury an opinionated change in a clean-looking diff.
 
-## 5. Post to Discord, then say what's next
+---
 
-Send to **#travel-agent** with `mcp__discord__discord_send`. Include:
+## 5. Post to Discord — once
 
-- the ticket link (`https://david-sun.atlassian.net/browse/TA-<n>`)
-- the PR link
-- a short summary of what changed and anything needing a judgement call
+**Do** — one post when the PR opens. Move the ticket to In Review (`31`). Include:
+- ticket link · PR link · CI status
+- what changed, and anything needing a judgement call
 - what to do next
 
-**2000-char limit** — split longer posts. Move the ticket to **In Review**
-(`31`) once the PR is up.
+**Never**
+- **Never post again for follow-up fixes on the same PR.** One PR = one Discord post. Extra commits, review fixes and self-caught bugs go in the PR and the reply to the user — not the channel. Keep the channel signal, not a commit log.
+- Never exceed 2000 chars — split instead.
 
-### Attaching the video
+### Attaching a video
 
-The Discord MCP tools are **text-only** — no attachment parameter on
-`discord_send` or `discord_send_webhook_message`. To upload a file, POST
-multipart to the REST API with the bot token (already configured as
-`DISCORD_TOKEN` in `~/.claude.json`, which is what the MCP server itself uses):
+MCP Discord tools are **text-only** (no attachment param). Use the REST API:
 
 ```bash
 TOKEN=$(node -e "…read DISCORD_TOKEN from ~/.claude.json…")   # never echo it
 curl -X POST "https://discord.com/api/v10/channels/$CHANNEL/messages" \
   -H "Authorization: Bot $TOKEN" \
   -F 'payload_json={"content":"…"}' \
-  -F "files[0]=@demo.mp4;type=video/mp4"
+  -F "files[0]=@light.webm;type=video/webm"
 ```
 
-This posts as ClaudeBot, same identity as the text updates. Alternative:
-`discord_create_webhook` returns an id + token, and webhook URLs accept the same
-multipart upload — but it posts under a webhook identity, so the bot route is
-tidier.
+- Posts as ClaudeBot, same identity as the text updates.
+- Cap ~10MB unboosted. Keep the token out of logs and the transcript.
 
-Upload cap is ~10MB on an unboosted server (more with Nitro/boosts). Keep the
-token out of logs and out of the transcript.
+---
 
-Close by telling the user what comes next and what needs their decision.
+## 6. Close out
+
+Tell the user what happened, what needs their decision, and what's next. On merge: ticket → Done (`41`), prune the local branch.
