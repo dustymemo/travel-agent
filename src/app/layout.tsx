@@ -28,7 +28,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e7ddc9",
+  // Mirrors --color-canvas in each theme (src/app/globals.css) so the browser
+  // chrome matches the page instead of flashing cream on a dark canvas.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#e7ddc9" },
+    { media: "(prefers-color-scheme: dark)", color: "#17140f" },
+  ],
 };
 
 export default function RootLayout({

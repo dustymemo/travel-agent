@@ -34,7 +34,7 @@ export function DateRange({
             setStart(e.target.value);
             commit(e.target.value, end);
           }}
-          className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+          className="rounded-lg border border-line bg-field px-3 py-1.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         />
       </label>
       <label className="flex flex-col gap-1 text-xs text-ink-soft">
@@ -47,7 +47,7 @@ export function DateRange({
             setEnd(e.target.value);
             commit(start, e.target.value);
           }}
-          className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+          className="rounded-lg border border-line bg-field px-3 py-1.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         />
       </label>
       {invalid && (

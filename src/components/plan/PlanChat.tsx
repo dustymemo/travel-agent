@@ -55,7 +55,7 @@ export function PlanChat() {
                 className={cn(
                   "max-w-[85%] rounded-2xl px-4 py-2 text-sm",
                   m.role === "user"
-                    ? "self-end bg-peach text-ink"
+                    ? "self-end bg-bubble text-ink"
                     : "self-start border border-line bg-surface text-ink",
                 )}
               >
@@ -87,7 +87,7 @@ export function PlanChat() {
                 type="button"
                 onClick={() => void send(q)}
                 disabled={status === "loading"}
-                className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta disabled:opacity-50"
+                className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
               >
                 {q}
               </button>
@@ -109,13 +109,13 @@ export function PlanChat() {
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Message Roam…"
             autoComplete="off"
-            className="flex-1 rounded-full border border-line bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+            className="flex-1 rounded-full border border-line bg-field px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           />
           <button
             type="submit"
             aria-label="Send message"
             disabled={status === "loading" || draft.trim().length === 0}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta text-lg text-surface transition-colors hover:bg-terracotta-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-peach disabled:opacity-50"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta text-lg text-surface transition-colors hover:bg-terracotta-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
           >
             <span aria-hidden>↑</span>
           </button>

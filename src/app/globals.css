@@ -1,34 +1,55 @@
 @import "tailwindcss";
 
 /**
- * Roam design tokens (TA-53) — a warm, editorial palette lifted from the
- * "Roam Trip Planner" design. A focused subset for the MVP shell; the full
- * design system (all category/state shades, spacing scale) lands in E6.
+ * Roam design tokens (TA-53, completed in TA-26) — a warm, editorial palette.
  *
- * Exposed to Tailwind via @theme so utilities like `bg-canvas`, `text-ink`,
- * `bg-surface`, `text-terracotta`, `font-display` are generated.
+ * Exposed to Tailwind via @theme, so `bg-canvas`, `text-ink`, `ring-focus` etc.
+ * are generated. Tailwind v4 compiles those to `var(--color-*)`, so redefining
+ * the variables under `prefers-color-scheme: dark` re-themes the whole app with
+ * no toggle, no client JS, and no flash of the wrong theme.
+ *
+ * Two rules keep this honest, both enforced by src/lib/theme/palette.test.ts:
+ *
+ * 1. Every colour pairing the UI actually renders clears WCAG AA — 4.5:1 for
+ *    text, 3:1 for focus rings. Values here are chosen to satisfy that, not by
+ *    eye; change one and the test tells you what broke.
+ * 2. A token names a *role*, never a place. `ink` is text and only text — the
+ *    dark rail is `rail`, because one variable cannot be both light-on-dark and
+ *    dark-on-light across two themes.
  */
 @theme {
-  /* Surfaces */
-  --color-canvas: #e7ddc9; /* page background */
-  --color-surface: #f5efe3; /* cards / panels */
-  --color-surface-2: #fcfaf4; /* lighter surface */
-  --color-line: #dbceb4; /* hairline borders */
+  /* Surfaces — page, cards, raised cards, form fields */
+  --color-canvas: #e7ddc9;
+  --color-surface: #f5efe3;
+  --color-surface-2: #fcfaf4;
+  --color-field: #fcfaf4;
+  --color-line: #dbceb4;
 
-  /* Ink / text */
-  --color-ink: #2c271f; /* primary text + dark surfaces (nav rail) */
-  --color-ink-soft: #6b6156; /* muted text */
-  --color-rail-active: #3c362b; /* nav active background */
-  --color-rail-idle: #b5a88f; /* nav idle text */
+  /* Ink — text only */
+  --color-ink: #2c271f;
+  --color-ink-soft: #64594e;
 
-  /* Accents */
-  --color-terracotta: #bc6a47; /* primary accent */
-  --color-terracotta-deep: #9e5133; /* accent hover */
-  --color-peach: #e7c6a0; /* soft hero accent */
-  --color-olive: #5e6b3f; /* success / activity */
-  --color-amber: #c89a3a; /* mid scores / food */
+  /* Nav rail — a dark warm rail in both themes, so it carries its own ink */
+  --color-rail: #2c271f;
+  --color-rail-ink: #f5efe3;
+  --color-rail-idle: #b5a88f;
+  --color-rail-active: #3c362b;
 
-  /* Stop category dots (Transport/Stay/Food/Activity/Explore) */
+  /* Accents. Terracotta is darker than the original #bc6a47: as a mid-tone it
+     could not clear 4.5:1 against near-white *or* near-black, so it could never
+     carry a button label. Hue and saturation are unchanged — only lightness. */
+  --color-terracotta: #a3542f;
+  --color-terracotta-deep: #83411f;
+  --color-bubble: #e7c6a0;
+  --color-olive: #556039;
+  --color-amber: #c89a3a;
+
+  /* Focus rings — `focus` for app surfaces, `focus-rail` for the dark rail */
+  --color-focus: #83411f;
+  --color-focus-rail: #e7c6a0;
+
+  /* Stop category dots (Transport/Stay/Food/Activity/Explore). Decorative and
+     aria-hidden — the text label carries the meaning — so exempt from AA. */
   --color-cat-transport: #8a7e6b;
   --color-cat-stay: #bc6a47;
   --color-cat-food: #c89a3a;
@@ -39,6 +60,38 @@
   --font-display: var(--font-instrument-serif), Georgia, serif;
   --font-sans: var(--font-hanken-grotesk), system-ui, sans-serif;
   --font-mono: ui-monospace, Menlo, monospace;
+}
+
+/**
+ * Dark theme — a patch over the light tokens above. Only what must flip is
+ * listed: the rail is already a dark rail, so it carries through untouched.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Surfaces get warm-dark, not neutral black, to hold the editorial feel */
+    --color-canvas: #17140f;
+    --color-surface: #211d16;
+    --color-surface-2: #2b261e;
+    --color-field: #2b261e;
+    --color-line: #3b3429;
+
+    --color-ink: #f2ebdd;
+    --color-ink-soft: #b0a390;
+
+    /* The accent lightens so it still reads as terracotta against a dark page,
+       while `surface` has flipped dark — so the button label stays legible. */
+    --color-terracotta: #e08a5f;
+    --color-terracotta-deep: #f0a87e;
+
+    /* The bubble flips dark so body ink (now light) reads on it. `focus-rail`
+       deliberately does not flip — the rail is dark in both themes. */
+    --color-bubble: #40331f;
+
+    --color-olive: #9cae6b;
+    --color-amber: #dcae4e;
+
+    --color-focus: #f0a87e;
+  }
 }
 
 html {
