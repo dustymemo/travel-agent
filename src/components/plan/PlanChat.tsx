@@ -21,7 +21,15 @@ const QUICK_REPLIES = ["Make it cheaper", "Trains instead", "Add a food tour"];
  * and messages are presentational.
  */
 export function PlanChat() {
-  const { messages, itinerary, status, weather, setDates, send } = usePlanner();
+  const {
+    messages,
+    itinerary,
+    status,
+    weather,
+    setDates,
+    send,
+    setActivityPrice,
+  } = usePlanner();
   const [draft, setDraft] = useState("");
   const started = messages.length > 0;
 
@@ -132,7 +140,10 @@ export function PlanChat() {
               {weather ? <WeatherBadge weather={weather} /> : <span />}
               <SaveTripButton itinerary={itinerary} />
             </div>
-            <ItineraryPanel itinerary={itinerary} />
+            <ItineraryPanel
+              itinerary={itinerary}
+              onPriceChange={setActivityPrice}
+            />
           </>
         ) : (
           <Card

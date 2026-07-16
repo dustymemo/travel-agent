@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import type { Message, Itinerary, TripDates } from "@/types/trip";
 import type { Climate } from "@/lib/weather/open-meteo";
+import { withActivityPrice } from "@/lib/itinerary";
 
 export type PlannerStatus = "idle" | "loading" | "error";
 
@@ -17,6 +18,16 @@ export interface UsePlanner {
   setDates: (dates: TripDates | null) => void;
   /** Send a traveler message; the plan updates in place. No-op while loading. */
   send: (content: string) => Promise<void>;
+  /**
+   * Correct one stop's ticket price (TA-27). The matching budget line moves by
+   * the same delta, so the trip total stays honest (TA-23). A re-plan replaces
+   * these edits — the model owns the itinerary.
+   */
+  setActivityPrice: (
+    dayNumber: number,
+    activityIndex: number,
+    priceCad: number,
+  ) => void;
 }
 
 /**
@@ -74,5 +85,27 @@ export function usePlanner(): UsePlanner {
     [messages, itinerary, status, dates],
   );
 
-  return { messages, itinerary, status, weather, dates, setDates, send };
+  const setActivityPrice = useCallback(
+    (dayNumber: number, activityIndex: number, priceCad: number) => {
+      // withActivityPrice returns the same reference for a no-op edit, so
+      // setState bails out and nothing re-renders.
+      setItinerary((current) =>
+        current
+          ? withActivityPrice(current, dayNumber, activityIndex, priceCad)
+          : current,
+      );
+    },
+    [],
+  );
+
+  return {
+    messages,
+    itinerary,
+    status,
+    weather,
+    dates,
+    setDates,
+    send,
+    setActivityPrice,
+  };
 }
